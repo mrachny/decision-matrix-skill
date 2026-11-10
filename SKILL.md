@@ -126,7 +126,7 @@ a specific message if something's missing or out of range.
     "description": "One or two short, plain sentences of context. Shown under the title.",
     "direction": "ltr",
     "credit": "Decision matrix by <your name>",
-    "credit_url": "https://github.com/<you>/decision-matrix-skill"
+    "credit_url": "https://github.com/mrachny/decision-matrix-skill"
   },
   "criteria": [
     { "id": "rent", "label": "Monthly rent", "description": "10 = cheapest of the four, 1 = most expensive.", "weight": 9 }

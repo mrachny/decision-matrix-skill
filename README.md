@@ -28,7 +28,7 @@ is the data file behind it.
 ## Install
 
 ```bash
-git clone https://github.com/<your-username>/decision-matrix-skill ~/.claude/skills/decision-matrix
+git clone https://github.com/mrachny/decision-matrix-skill ~/.claude/skills/decision-matrix
 ```
 
 Claude Code loads any skill under `.claude/skills/` automatically and will reach for
