@@ -1,5 +1,8 @@
 # decision-matrix
 
+[![CodeQL](https://github.com/mrachny/decision-matrix-skill/actions/workflows/codeql.yml/badge.svg)](https://github.com/mrachny/decision-matrix-skill/actions/workflows/codeql.yml)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/mrachny/decision-matrix-skill/badge)](https://scorecard.dev/viewer/?uri=github.com/mrachny/decision-matrix-skill)
+
 Make hard decisions with a weighted decision matrix instead of gut feel. Two ways to
 use it:
 
@@ -63,6 +66,14 @@ this one whenever a conversation looks like a multi-option, multi-factor decisio
 | `webapp/index.html` | The no-install web app — same method, no Claude Code required |
 | `docs/index.html` | Exact copy of `webapp/index.html`, served by GitHub Pages (which only reads `/docs` or the repo root) — keep the two in sync if you edit one |
 | `references/method.md` | Method background and scoring pitfalls to avoid |
+
+## Security
+
+No backend, no database, no accounts, no third-party dependencies — see
+[SECURITY.md](SECURITY.md) for exactly what that means and what's actually scanned
+(CodeQL on every push, a weekly OpenSSF Scorecard run) versus what isn't. Report
+issues via [GitHub issues](https://github.com/mrachny/decision-matrix-skill/issues)
+or [private advisories](https://github.com/mrachny/decision-matrix-skill/security/advisories/new).
 
 ## Use it, star it
 
