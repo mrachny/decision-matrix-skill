@@ -11,16 +11,18 @@ instead of gut feel. Two ways to use it:
 
 ## No-install web app
 
-Open [`webapp/index.html`](webapp/index.html) in any browser (or host it with GitHub
-Pages) — no account, no server, nothing to install. Describe your decision (or click
-one of the built-in examples), review and edit the criteria and weights it proposes,
-and get a live interactive ranking: drag a weight slider or mute an option and
-everything recomputes instantly.
+**[Try it live](https://mrachny.github.io/decision-matrix-skill/)** — no account, no
+server, nothing to install. Describe your decision (or click one of the built-in
+examples), review and edit the criteria and weights it proposes, and get a live
+interactive ranking: drag a weight slider or mute an option and everything recomputes
+instantly.
 
 Opened inside a claude.ai Artifact with AI assist granted, it also researches and
-scores every option against every criterion for you. Opened anywhere else (like a
-plain downloaded file), it skips straight to a blank comparison you fill in by hand —
-still does all the weighting math, you just supply the scores yourself.
+scores every option against every criterion for you — that's what the Claude Artifact
+build of this page does. The GitHub Pages copy above (and any plain download) can't
+reach an LLM at all — `window.claude` only exists inside a claude.ai Artifact frame —
+so it skips straight to a blank comparison you fill in by hand. Either way the
+weighting math is identical; only who supplies the scores changes.
 
 ## Claude Code skill
 
@@ -60,6 +62,7 @@ this one whenever a conversation looks like a multi-option, multi-factor decisio
 | `scripts/build_report.py` | Validates your JSON data file and renders it into one standalone `report.html` |
 | `assets/report_template.html` | The report's engine — plain HTML/CSS/JS, no build step |
 | `webapp/index.html` | The no-install web app — same method, no Claude Code required |
+| `docs/index.html` | Exact copy of `webapp/index.html`, served by GitHub Pages (which only reads `/docs` or the repo root) — keep the two in sync if you edit one |
 | `references/method.md` | ASQ method background and scoring pitfalls to avoid |
 
 ## Use it, star it
