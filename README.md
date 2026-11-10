@@ -56,10 +56,12 @@ is the data file behind it.
 
 ### Install
 
-In Claude Code:
+In Claude Code (listed as **WeighIt** — a naming collision with an unrelated
+directory connector meant it couldn't be listed as "decision-matrix"; the repo and
+the skill itself keep that name either way):
 
 ```
-/plugin install decision-matrix-skill --marketplace mrachny/decision-matrix-skill
+/plugin install weighit --marketplace mrachny/decision-matrix-skill
 ```
 
 Or clone it straight into your skills folder:
