@@ -1,7 +1,6 @@
 # The weighted decision matrix method
 
-Background reading for the `decision-matrix` skill. The canonical write-up is ASQ's:
-https://asq.org/quality-resources/decision-matrix
+Background reading for the `decision-matrix` skill.
 
 ## The core idea
 

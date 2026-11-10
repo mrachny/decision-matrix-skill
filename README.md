@@ -1,8 +1,7 @@
 # decision-matrix
 
-Make hard decisions with a weighted decision matrix — the method from
-[ASQ's decision matrix guide](https://asq.org/quality-resources/decision-matrix) —
-instead of gut feel. Two ways to use it:
+Make hard decisions with a weighted decision matrix instead of gut feel. Two ways to
+use it:
 
 - **No install**: a [standalone web app](#no-install-web-app) that walks you through
   it in your browser.
@@ -63,7 +62,7 @@ this one whenever a conversation looks like a multi-option, multi-factor decisio
 | `assets/report_template.html` | The report's engine — plain HTML/CSS/JS, no build step |
 | `webapp/index.html` | The no-install web app — same method, no Claude Code required |
 | `docs/index.html` | Exact copy of `webapp/index.html`, served by GitHub Pages (which only reads `/docs` or the repo root) — keep the two in sync if you edit one |
-| `references/method.md` | ASQ method background and scoring pitfalls to avoid |
+| `references/method.md` | Method background and scoring pitfalls to avoid |
 
 ## Use it, star it
 

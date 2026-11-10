@@ -1,7 +1,7 @@
 ---
 name: decision-matrix
 description: >
-  Walk someone through a weighted decision matrix (the ASQ method) to choose between
+  Walk someone through a weighted decision matrix to choose between
   real options with multiple competing factors — job offers, apartments, cities,
   vendors, degrees, cars, hires, tools, vacation spots, anything where "just pick the
   cheapest one" isn't good enough. Elicits the top 5-10 criteria that actually matter,
@@ -121,9 +121,8 @@ plain template. For each cell:
 ## 6. Compute the weighted total
 
 For each option: `weighted_score = Σ(weight_i × score_i) / Σ(weight_i)`, a normalized
-1-10 average. This is the same normalization used in the ASQ decision matrix method
-(https://asq.org/quality-resources/decision-matrix) and keeps the total on the same
-1-10 scale as the inputs, which makes it easy to sanity-check.
+1-10 average. This keeps the total on the same 1-10 scale as the inputs, which makes
+it easy to sanity-check.
 
 ## 7. Deliver the markdown table first
 
@@ -194,7 +193,7 @@ reverse). If the ranking is robust to that kind of poking, that's useful signal 
 
 ## Reference files
 
-- `references/method.md` — background on the ASQ method, common scoring pitfalls
+- `references/method.md` — background on the method, common scoring pitfalls
   (correlated criteria, weight compression, anchoring drift), and how to talk through
   a tie with the person.
 - `assets/report_template.html` — the report engine. You shouldn't need to edit this by
