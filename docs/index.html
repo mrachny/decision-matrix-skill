@@ -867,9 +867,15 @@ function renderResults(){
   var closeCall = el("closeCallNote");
   if (ranked.length >= 2 && (ranked[0].avg - ranked[1].avg) <= 0.5){
     closeCall.hidden = false;
-    closeCall.innerHTML = "<b>Close call:</b> " + ranked[0].o.label + " and " + ranked[1].o.label + " are within half a point ("
+    closeCall.innerHTML = "";
+    var closeCallLead = document.createElement("b");
+    closeCallLead.textContent = "Close call:";
+    closeCall.appendChild(closeCallLead);
+    closeCall.appendChild(document.createTextNode(
+      " " + ranked[0].o.label + " and " + ranked[1].o.label + " are within half a point ("
       + ranked[0].avg.toFixed(1) + " vs " + ranked[1].avg.toFixed(1) + "). At this gap the numbers can't really tell them apart — "
-      + "worth deciding on gut feel, or checking whether something that matters to you is missing from the list above.";
+      + "worth deciding on gut feel, or checking whether something that matters to you is missing from the list above."
+    ));
   } else {
     closeCall.hidden = true;
   }

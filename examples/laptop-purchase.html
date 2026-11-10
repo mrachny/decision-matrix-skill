@@ -332,7 +332,9 @@ footer .credit a:hover{text-decoration:underline}
         section.className = "group";
         var head = document.createElement("div");
         head.className = "group-head";
-        head.innerHTML = "<h2>" + g + "</h2>";
+        var groupHeading = document.createElement("h2");
+        groupHeading.textContent = g;
+        head.appendChild(groupHeading);
         section.appendChild(head);
         CRITERIA.filter(function(c){ return c.group === g; }).forEach(function(c){ section.appendChild(buildCritRow(c)); });
         groupsEl.appendChild(section);
@@ -366,7 +368,10 @@ footer .credit a:hover{text-decoration:underline}
     var wctl = document.createElement("div");
     wctl.className = "weight-ctl";
     var wid = "w_" + c.id;
-    wctl.innerHTML = '<label for="'+wid+'">importance</label>';
+    var wlabel = document.createElement("label");
+    wlabel.setAttribute("for", wid);
+    wlabel.textContent = "importance";
+    wctl.appendChild(wlabel);
     var slider = document.createElement("input");
     slider.type = "range"; slider.min = 1; slider.max = 10; slider.step = 1; slider.id = wid;
     slider.value = state.weights[c.id];
@@ -516,7 +521,14 @@ footer .credit a:hover{text-decoration:underline}
     ranked.forEach(function(r){
       var el = document.createElement("div");
       el.className = "rbar";
-      el.innerHTML = '<span class="dot" style="background:'+r.o._color+'"></span>' + r.o.label + ' <b>' + r.avg.toFixed(1) + '</b>';
+      var dot = document.createElement("span");
+      dot.className = "dot";
+      dot.style.background = r.o._color;
+      var total = document.createElement("b");
+      total.textContent = r.avg.toFixed(1);
+      el.appendChild(dot);
+      el.appendChild(document.createTextNode(r.o.label + " "));
+      el.appendChild(total);
       ribbonBars.appendChild(el);
     });
 
@@ -545,9 +557,14 @@ footer .credit a:hover{text-decoration:underline}
         var tb = topBottom(r.o.id);
         var tags = document.createElement("div");
         tags.className = "tags";
-        tags.innerHTML =
-          '<span class="tag up">↑ ' + shortLabel(tb.up.label) + '</span>' +
-          '<span class="tag down">↓ ' + shortLabel(tb.down.label) + '</span>';
+        var tagUp = document.createElement("span");
+        tagUp.className = "tag up";
+        tagUp.textContent = "↑ " + shortLabel(tb.up.label);
+        var tagDown = document.createElement("span");
+        tagDown.className = "tag down";
+        tagDown.textContent = "↓ " + shortLabel(tb.down.label);
+        tags.appendChild(tagUp);
+        tags.appendChild(tagDown);
         chartBody.appendChild(tags);
       }
     });
@@ -555,9 +572,15 @@ footer .credit a:hover{text-decoration:underline}
     var closeCall = document.getElementById("closeCallNote");
     if (ranked.length >= 2 && (ranked[0].avg - ranked[1].avg) <= 0.5){
       closeCall.hidden = false;
-      closeCall.innerHTML = "<b>Close call:</b> " + ranked[0].o.label + " and " + ranked[1].o.label +
+      closeCall.innerHTML = "";
+      var closeCallLead = document.createElement("b");
+      closeCallLead.textContent = "Close call:";
+      closeCall.appendChild(closeCallLead);
+      closeCall.appendChild(document.createTextNode(
+        " " + ranked[0].o.label + " and " + ranked[1].o.label +
         " are within half a point of each other (" + ranked[0].avg.toFixed(1) + " vs " + ranked[1].avg.toFixed(1) +
-        "). At this gap the model can't really tell them apart — worth deciding on gut feel, or checking whether a criterion that matters to you is missing from the list.";
+        "). At this gap the model can't really tell them apart — worth deciding on gut feel, or checking whether a criterion that matters to you is missing from the list."
+      ));
     } else {
       closeCall.hidden = true;
     }
