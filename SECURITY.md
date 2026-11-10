@@ -5,10 +5,9 @@
 Worth stating plainly, since it's the real basis for any security claim here:
 
 - **No backend, no database, no user accounts.** The two deliverables are a Claude
-  Code skill (text instructions plus a small Python script that validates a JSON file
-  and does string templating — no network calls, no `eval`, no shell execution of
-  untrusted input) and a client-side web app (plain HTML/CSS/JS, no framework, no
-  build step).
+  Code skill (text instructions plus a small Python script that reads a JSON file and
+  writes one HTML file — it doesn't reach the network or start any other program) and
+  a client-side web app (plain HTML/CSS/JS, no framework, no build step).
 - **Zero third-party dependencies.** No `npm`/`pip` packages beyond the Python
   standard library. Nothing to patch, nothing pulled in from someone else's registry.
 - **No secrets.** Nothing in this repo talks to an API key, a token, or a credential

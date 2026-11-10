@@ -1,5 +1,5 @@
 {
-  "name": "decision-matrix",
+  "name": "decision-matrix-skill",
   "displayName": "Decision Matrix",
   "version": "1.0.0",
   "description": "Make hard decisions with a weighted decision matrix: pick the criteria that matter, weight them, research and score every option, and get a markdown table plus a self-contained interactive HTML report.",

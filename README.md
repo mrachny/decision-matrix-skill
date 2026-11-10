@@ -59,7 +59,7 @@ is the data file behind it.
 In Claude Code:
 
 ```
-/plugin install decision-matrix --marketplace mrachny/decision-matrix-skill
+/plugin install decision-matrix-skill --marketplace mrachny/decision-matrix-skill
 ```
 
 Or clone it straight into your skills folder:

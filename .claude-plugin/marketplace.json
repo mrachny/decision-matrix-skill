@@ -1,5 +1,5 @@
 {
-  "name": "decision-matrix",
+  "name": "decision-matrix-skill",
   "owner": {
     "name": "mrachny",
     "url": "https://github.com/mrachny"
@@ -7,7 +7,7 @@
   "description": "A weighted decision matrix skill for making hard decisions with real research instead of gut feel.",
   "plugins": [
     {
-      "name": "decision-matrix",
+      "name": "decision-matrix-skill",
       "source": ".",
       "description": "Pick the criteria that matter, weight them, research and score every option, and get a markdown table plus a self-contained interactive HTML report."
     }
