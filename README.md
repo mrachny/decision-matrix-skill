@@ -11,7 +11,7 @@ instead of gut feel. Two ways to use it:
 
 ## No-install web app
 
-**[Try it live](https://mrachny.github.io/decision-matrix-skill/)** — no account, no
+**[Try it live](http://www.mrachny.com/decision-matrix-skill/)** — no account, no
 server, nothing to install. Describe your decision (or click one of the built-in
 examples), review and edit the criteria and weights it proposes, and get a live
 interactive ranking: drag a weight slider or mute an option and everything recomputes
