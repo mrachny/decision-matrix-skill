@@ -56,6 +56,14 @@ is the data file behind it.
 
 ### Install
 
+In Claude Code:
+
+```
+/plugin install decision-matrix --marketplace mrachny/decision-matrix-skill
+```
+
+Or clone it straight into your skills folder:
+
 ```bash
 git clone https://github.com/mrachny/decision-matrix-skill ~/.claude/skills/decision-matrix
 ```
@@ -67,6 +75,8 @@ this one whenever a conversation looks like a multi-option, multi-factor decisio
 
 | File | Purpose |
 |---|---|
+| `.claude-plugin/plugin.json` | Plugin manifest — metadata for the directory listing and for `/plugin install` |
+| `.claude-plugin/marketplace.json` | Lets anyone install with one command, without adding a separate marketplace first |
 | `SKILL.md` | The workflow Claude follows: scope the decision, elicit and define criteria, weight them, research + score, compute totals, build the report |
 | `scripts/build_report.py` | Validates your JSON data file and renders it into one standalone `report.html` |
 | `assets/report_template.html` | The report's engine — plain HTML/CSS/JS, no build step |

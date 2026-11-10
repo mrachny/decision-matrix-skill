@@ -1,0 +1,14 @@
+{
+  "name": "decision-matrix",
+  "displayName": "Decision Matrix",
+  "version": "1.0.0",
+  "description": "Make hard decisions with a weighted decision matrix: pick the criteria that matter, weight them, research and score every option, and get a markdown table plus a self-contained interactive HTML report.",
+  "author": {
+    "name": "mrachny",
+    "url": "https://github.com/mrachny"
+  },
+  "homepage": "https://github.com/mrachny/decision-matrix-skill",
+  "repository": "https://github.com/mrachny/decision-matrix-skill",
+  "license": "MIT",
+  "keywords": ["decision-matrix", "decision-making", "weighted-scoring", "pugh-matrix", "productivity"]
+}
