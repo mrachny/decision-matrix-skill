@@ -1,0 +1,943 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Decision Matrix</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* layout concept: a single-column wizard (decide -> review -> result), one
+   step visible at a time, slim progress row up top, credit line in the footer */
+:root{
+  --page:#f8f8f6; --surface:#ffffff; --surface-2:#f0efe9; --ink:#191814; --ink-2:#53514a;
+  --muted:#8a8780; --border:rgba(10,10,10,0.10); --grid:#e4e2da; --accent:#5b57d1;
+  --accent-ink:#ffffff; --good:#1a9c5c; --bad:#c23a3a;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --page:#111110; --surface:#1a1a18; --surface-2:#232220; --ink:#f1efe9; --ink-2:#c4c1b8;
+    --muted:#8d8a81; --border:rgba(255,255,255,0.12); --grid:#2e2d29; --accent:#938fe8;
+    --accent-ink:#161422; --good:#3bc07c; --bad:#e2605f; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --page:#111110; --surface:#1a1a18; --surface-2:#232220; --ink:#f1efe9; --ink-2:#c4c1b8;
+  --muted:#8d8a81; --border:rgba(255,255,255,0.12); --grid:#2e2d29; --accent:#938fe8;
+  --accent-ink:#161422; --good:#3bc07c; --bad:#e2605f; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{background:var(--page)}
+body{margin:0;color:var(--ink);font-family:'Inter',system-ui,Arial,sans-serif;
+  padding-left:max(16px, env(safe-area-inset-left,0px)); padding-right:max(16px, env(safe-area-inset-right,0px));}
+.wrap{max-width:720px;margin:0 auto;padding-block:26px 44px}
+h1,h2,h3{font-family:'Source Serif 4',Georgia,serif;font-weight:700;text-wrap:balance;margin:0}
+p{line-height:1.6;color:var(--ink-2);margin:0}
+a{color:var(--accent)}
+.eyebrow{font-size:11.5px;letter-spacing:.07em;color:var(--muted);text-transform:uppercase;font-weight:600}
+.tagline{margin-top:6px;font-size:14.5px}
+
+.progress{display:flex;gap:6px;margin-top:22px;margin-bottom:28px}
+.progress .step{flex:1;height:4px;border-radius:999px;background:var(--border)}
+.progress .step.done,.progress .step.active{background:var(--accent)}
+.progress-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:-22px;margin-bottom:28px}
+.progress-labels span.active{color:var(--accent);font-weight:700}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px 20px 22px;margin-top:16px}
+.screen{display:none}
+.screen.visible{display:block}
+
+textarea,input[type=text]{
+  width:100%;font-family:inherit;font-size:14.5px;color:var(--ink);background:var(--surface-2);
+  border:1px solid var(--border);border-radius:10px;padding:10px 12px;
+}
+textarea{resize:vertical;min-height:88px;line-height:1.5}
+input[type=text]{height:38px}
+textarea:focus,input:focus{outline:2px solid var(--accent);outline-offset:1px}
+
+.examplesRow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.examplesLabel{font-size:12px;color:var(--muted)}
+.chip{
+  font-family:inherit;font-size:12.5px;border:1px solid var(--border);background:var(--surface-2);
+  color:var(--ink-2);border-radius:999px;padding:5px 12px;cursor:pointer;
+}
+.chip:hover{border-color:var(--accent);color:var(--accent)}
+
+button{font-family:inherit}
+.primary{
+  background:var(--accent);color:var(--accent-ink);border:none;border-radius:10px;
+  font-size:14.5px;font-weight:600;padding:11px 20px;cursor:pointer;
+}
+.primary:disabled{opacity:.5;cursor:default}
+.primary:hover:not(:disabled){filter:brightness(1.07)}
+.ghost{
+  background:transparent;color:var(--ink-2);border:1px solid var(--border);border-radius:10px;
+  font-size:13.5px;padding:9px 16px;cursor:pointer;
+}
+.ghost:hover{border-color:var(--accent);color:var(--accent)}
+button:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.actionsRow{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;align-items:center}
+.actionsRow.spread{justify-content:space-between}
+
+.statusLine{margin-top:12px;font-size:13px}
+.statusLine.thinking{color:var(--accent)}
+.statusLine.error{color:var(--bad)}
+.statusLine[hidden]{display:none!important}
+.inlineActions{display:flex;gap:10px;margin-top:8px;flex-wrap:wrap}
+.linkBtn{background:none;border:none;color:var(--accent);font-family:inherit;font-size:13px;cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:2px}
+
+.aiNote{margin-top:4px;margin-bottom:14px;border-radius:10px;padding:10px 12px;font-size:12.5px;line-height:1.5;
+  background:color-mix(in srgb, var(--accent) 9%, var(--surface));border:1px solid color-mix(in srgb, var(--accent) 28%, var(--border));color:var(--ink-2)}
+.aiNote[hidden]{display:none!important}
+
+.fieldLabel{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:600;margin:18px 0 8px}
+.titleInput{font-family:'Source Serif 4',Georgia,serif;font-size:19px;font-weight:700;height:44px}
+
+.rowItem{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.rowItem input[type=text]{flex:1}
+.rowBody{flex:1;display:flex;flex-direction:column;gap:6px}
+.removeBtn{
+  width:30px;height:30px;flex:none;border-radius:8px;border:1px solid var(--border);background:var(--surface-2);
+  color:var(--ink-2);font-size:14px;cursor:pointer;line-height:1;
+}
+.removeBtn:hover{border-color:var(--bad);color:var(--bad)}
+.removeBtn:disabled{opacity:.35;cursor:default}
+.addBtn{margin-top:4px}
+
+.critRow{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:10px}
+.critTop{display:flex;gap:8px;align-items:flex-start}
+.critDesc{font-size:12.5px;background:var(--surface);min-height:34px}
+.weightRow{display:flex;align-items:center;gap:8px;margin-top:8px}
+.weightRow label{font-size:11px;color:var(--muted);white-space:nowrap}
+.weightRow input[type=range]{accent-color:var(--accent);flex:1;max-width:160px}
+.weightBadge{font-variant-numeric:tabular-nums;font-weight:700;font-size:12px;min-width:20px;text-align:center;color:var(--accent)}
+
+.resultHeader{margin-bottom:6px}
+.aiDisclaimer{font-size:12px;margin-top:4px}
+
+.cells{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:10px}
+@media (max-width:480px){.cells{grid-template-columns:1fr}}
+.cell{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:9px 10px 8px;min-width:0}
+.cell-head{display:flex;align-items:center;gap:6px;margin-bottom:7px}
+.cell-head span{font-size:12px;font-weight:600;color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.stepper{display:flex;align-items:center;gap:6px}
+.stepper button{
+  width:24px;height:24px;border-radius:7px;border:1px solid var(--border);background:var(--surface);
+  color:var(--ink);font-size:14px;line-height:1;cursor:pointer;flex:none
+}
+.stepper button:hover{border-color:var(--accent);color:var(--accent)}
+.score-chip{flex:1;text-align:center;font-weight:700;font-variant-numeric:tabular-nums;font-size:13px;border-radius:7px;padding:4px 0;color:#fff}
+.why-btn{margin-top:5px;width:100%;background:none;border:none;color:var(--muted);font-family:inherit;font-size:10.5px;cursor:pointer;text-decoration:underline;text-underline-offset:2px;padding:2px 0;text-align:center}
+.why-btn:hover{color:var(--accent)}
+.why-btn:disabled{opacity:.4;cursor:default;text-decoration:none}
+.why-note{margin-top:5px;font-size:11px;line-height:1.5;color:var(--ink-2)}
+.why-note[hidden]{display:none!important}
+
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 14px}
+.legend .item{display:flex;align-items:center;gap:6px;cursor:pointer;background:var(--surface-2);border:1px solid var(--border);border-radius:999px;padding:5px 10px 5px 8px;user-select:none;font-size:12px;color:var(--ink-2)}
+.legend .item:hover{border-color:var(--accent)}
+.legend .item.off{opacity:.45}
+.legend .swatch{width:10px;height:10px;border-radius:50%;flex:none}
+
+.chart-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.chart-row .label{width:110px;flex:none;font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chart-row .track{flex:1;background:var(--surface-2);border-radius:999px;height:22px;position:relative;overflow:hidden}
+.chart-row .fill{height:100%;border-radius:999px;display:flex;align-items:center;justify-content:flex-end;padding:0 10px;min-width:34px}
+.chart-row .fill span{font-size:12px;font-weight:700;color:#fff;font-variant-numeric:tabular-nums}
+.chart-axis{display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted);padding:0 0 4px;margin-top:2px;font-variant-numeric:tabular-nums}
+
+.table-toggle{margin-top:10px;font-size:12.5px;color:var(--accent);background:none;border:none;font-family:inherit;cursor:pointer;text-decoration:underline;padding:0}
+.datatable{margin-top:10px;overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:420px;font-size:12px}
+table[hidden]{display:none!important}
+th,td{border-bottom:1px solid var(--grid);padding:6px 7px;text-align:center;font-variant-numeric:tabular-nums}
+thead th{color:var(--muted);font-weight:600;font-size:10.5px}
+tbody th{text-align:left;color:var(--ink-2);font-weight:500}
+tfoot td,tfoot th{font-weight:700;border-top:2px solid var(--border);border-bottom:none}
+
+.note{margin-top:14px;border-radius:12px;padding:12px 14px;font-size:12.5px;line-height:1.6;background:color-mix(in srgb, var(--accent) 9%, var(--surface));border:1px solid color-mix(in srgb, var(--accent) 28%, var(--border));color:var(--ink-2)}
+.note[hidden]{display:none!important}
+
+footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--border)}
+footer p{font-size:11.5px;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <p class="eyebrow">Decision Matrix</p>
+  <h1>Weigh it, don't just guess it</h1>
+  <p class="tagline">Lay your options out against what actually matters to you, and let the math do some of the deciding.</p>
+
+  <div class="progress">
+    <div class="step" data-step="intake"></div>
+    <div class="step" data-step="draft"></div>
+    <div class="step" data-step="results"></div>
+  </div>
+  <div class="progress-labels">
+    <span data-step-label="intake">1. Decide</span>
+    <span data-step-label="draft">2. Review</span>
+    <span data-step-label="results">3. Result</span>
+  </div>
+
+  <section id="screenIntake" class="screen card">
+    <h2>What are you deciding?</h2>
+    <p id="intakeCopy">Tell me the decision, the options, and roughly what matters to you &mdash; a rough sentence is enough, I'll turn it into a clean comparison.</p>
+    <div class="fieldLabel">Your decision</div>
+    <textarea id="intakeText" rows="4" placeholder="e.g. Choosing between 3 job offers &mdash; Acme, Globex, and staying at my current job. I mostly care about pay, how much I'd grow, and not having a brutal commute."></textarea>
+    <div class="examplesRow">
+      <span class="examplesLabel">Try an example:</span>
+      <button class="chip" type="button" data-example="job">Job offer</button>
+      <button class="chip" type="button" data-example="apartment">Apartment</button>
+      <button class="chip" type="button" data-example="purchase">Big purchase</button>
+    </div>
+    <div class="actionsRow">
+      <button id="startBtn" class="primary" type="button">Start &rarr;</button>
+    </div>
+    <p class="statusLine" id="intakeStatus" hidden></p>
+    <div class="inlineActions" id="intakeFallback" hidden>
+      <button class="linkBtn" id="intakeFallbackBtn" type="button">Continue without AI</button>
+    </div>
+  </section>
+
+  <section id="screenDraft" class="screen card">
+    <div class="fieldLabel">Decision</div>
+    <input type="text" id="titleInput" class="titleInput">
+    <div class="aiNote" id="aiNote" hidden></div>
+
+    <div class="fieldLabel">Options</div>
+    <div id="optionsList"></div>
+    <button class="ghost addBtn" id="addOptionBtn" type="button">+ Add option</button>
+
+    <div class="fieldLabel">What matters, and how much (1&ndash;10)</div>
+    <div id="criteriaList"></div>
+    <button class="ghost addBtn" id="addCriterionBtn" type="button">+ Add criterion</button>
+
+    <div class="actionsRow spread">
+      <button class="ghost" id="backToIntakeBtn" type="button">&larr; Back</button>
+      <div class="inlineActions" style="margin:0">
+        <button class="ghost" id="regenerateDraftBtn" type="button" hidden>Regenerate draft</button>
+        <button class="primary" id="seeResultsBtn" type="button">See results &rarr;</button>
+      </div>
+    </div>
+    <p class="statusLine" id="draftStatus" hidden></p>
+    <div class="inlineActions" id="draftFallback" hidden>
+      <button class="linkBtn" id="draftFallbackBtn" type="button">Continue with neutral scores</button>
+    </div>
+  </section>
+
+  <section id="screenResults" class="screen">
+    <div class="card resultHeader">
+      <h2 id="resultsTitle"></h2>
+      <p class="aiDisclaimer" id="aiDisclaimer" hidden>Scored using Claude's general knowledge, not a live search &mdash; double-check anything time-sensitive (prices, listings, availability) yourself.</p>
+      <p class="aiDisclaimer" id="manualDisclaimer" hidden>No AI scoring was used &mdash; every score below is exactly what you set.</p>
+    </div>
+
+    <div class="card">
+      <div id="criteriaEditList"></div>
+    </div>
+
+    <div class="card">
+      <h3 style="font-size:16px;margin-bottom:10px">Ranking</h3>
+      <p style="font-size:12.5px;margin-bottom:10px">Click an option to include or exclude it from the ranking below.</p>
+      <div class="legend" id="resultsLegend"></div>
+      <div id="chartBody"></div>
+      <div class="chart-axis"><span>1</span><span>3</span><span>5</span><span>7</span><span>10</span></div>
+      <button class="table-toggle" id="tableToggle" type="button">Show as data table</button>
+      <div class="datatable">
+        <table id="dataTable" hidden>
+          <thead><tr id="dataTableHeadRow"></tr></thead>
+          <tbody id="dataTableBody"></tbody>
+          <tfoot><tr id="dataTableFoot"></tr></tfoot>
+        </table>
+      </div>
+      <div class="note" id="closeCallNote" hidden></div>
+    </div>
+
+    <div class="actionsRow spread">
+      <div class="inlineActions" style="margin:0">
+        <button class="ghost" id="editDraftBtn" type="button">&larr; Edit options/criteria</button>
+        <button class="ghost" id="regenerateScoresBtn" type="button" hidden>Regenerate scores</button>
+      </div>
+      <button class="ghost" id="startOverBtn" type="button">Start a new decision</button>
+    </div>
+    <p class="statusLine" id="resultsStatus" hidden></p>
+    <div class="inlineActions" id="resultsFallback" hidden>
+      <button class="linkBtn" id="resultsFallbackBtn" type="button">Keep current scores</button>
+    </div>
+  </section>
+
+  <footer>
+    <p>Method: weighted score = sum(weight &times; score) &divide; sum(weight) per option, per the <a href="https://asq.org/quality-resources/decision-matrix" target="_blank" rel="noopener">ASQ decision matrix</a>. Built with <a href="https://github.com/mrachny/decision-matrix-skill" target="_blank" rel="noopener">decision-matrix</a>. Nothing you type here is stored beyond your own browser.</p>
+    <p>AI-assisted criteria and scoring only work when this page is opened inside a claude.ai Artifact with AI assist granted. Opened on its own (like this file), it runs in manual mode &mdash; still does all the weighting math, you fill in the scores.</p>
+  </footer>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+var EXAMPLES = {
+  job: "Choosing between 3 job offers — Acme (startup), Globex (big tech), and staying at my current job, Initech. I mostly care about pay, how much I'd grow, and not having a brutal commute.",
+  apartment: "Deciding between 3 apartments I'm looking at — Elm St, Birch Ave, and the Maple Court unit. Budget matters a lot, and so does commute time and how much natural light they get.",
+  purchase: "Trying to pick a laptop for a mix of coding and travel — deciding between a Framework 13, a MacBook Air, and a Lenovo ThinkPad. Price, performance, and battery life all matter most."
+};
+
+var idCounter = 0;
+function nextId(prefix){ idCounter += 1; return prefix + idCounter; }
+function clampWeight(w){ w = Number(w); if(!isFinite(w)) w = 5; return Math.max(1, Math.min(10, Math.round(w))); }
+function mkOption(label){ return { id: nextId("o"), label: label }; }
+function mkCriterion(label, description, weight){ return { id: nextId("c"), label: label, description: description || "", weight: clampWeight(weight) }; }
+
+var state = {
+  phase: "intake",
+  aiAvailable: null,
+  rawIntake: "",
+  title: "My decision",
+  note: "",
+  usedAi: false,
+  options: [],
+  criteria: [],
+  scores: {},
+  notes: {},
+  included: {}
+};
+var DEFAULT_SCORES = null;
+
+var sample = null;
+(function checkAi(){
+  try{
+    if (window.claude && typeof window.claude.use === "function"){
+      window.claude.use("sample").then(function(ns){
+        sample = ns;
+        state.aiAvailable = !!ns;
+        refreshAiDependentUi();
+      }).catch(function(){ sample = null; state.aiAvailable = false; refreshAiDependentUi(); });
+      return;
+    }
+  }catch(e){}
+  sample = null; state.aiAvailable = false; updateIntakeCopy();
+})();
+
+var STORE_KEY = "decision-matrix-app:v1";
+function persist(){
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
+}
+function loadPersisted(){
+  try{
+    var raw = localStorage.getItem(STORE_KEY);
+    if(!raw) return false;
+    var saved = JSON.parse(raw);
+    if(!saved || typeof saved !== "object") return false;
+    Object.assign(state, saved, { aiAvailable: state.aiAvailable });
+    var maxId = 0;
+    (state.options||[]).concat(state.criteria||[]).forEach(function(x){
+      var m = /^[a-z]+(\d+)$/.exec(x.id||"");
+      if(m) maxId = Math.max(maxId, parseInt(m[1],10));
+    });
+    idCounter = maxId;
+    return true;
+  }catch(e){ return false; }
+}
+
+function el(id){ return document.getElementById(id); }
+function show(id, visible){ el(id).hidden = !visible; }
+
+function setStatus(id, text, kind){
+  var node = el(id);
+  node.textContent = text || "";
+  node.className = "statusLine" + (kind ? " " + kind : "");
+  node.hidden = !text;
+}
+
+function refreshAiDependentUi(){
+  updateIntakeCopy();
+  if (state.phase === "draft") renderDraftScreen();
+  else if (state.phase === "results") renderResultsScreen();
+}
+function updateIntakeCopy(){
+  if (state.aiAvailable === false){
+    el("intakeCopy").textContent = "AI assist isn't available in this view, so this will build a blank comparison for you to fill in by hand — still does the weighting math for you.";
+  } else {
+    el("intakeCopy").textContent = "Tell me the decision, the options, and roughly what matters to you — a rough sentence is enough, I'll turn it into a clean comparison.";
+  }
+}
+
+// ---------- error mapping ----------
+function mapError(e){
+  var code = e && e.code;
+  switch(code){
+    case "not_granted": return "AI assist isn't turned on for this view.";
+    case "sampling_disabled": return "Claude isn't available for this account right now.";
+    case "rate_limited": return "Too many requests just now — wait a moment and try again.";
+    case "session_expired": return "Your session timed out — try again.";
+    case "invalid_json": return "Got a reply that wasn't quite right — let's try once more.";
+    case "empty_completion": return "Didn't get a usable answer that time — try again with a bit more detail.";
+    case "refused": return "That request was declined — try rephrasing.";
+    case "cancelled": return "Cancelled.";
+    default: return "Something went wrong talking to Claude — try again, or continue by hand.";
+  }
+}
+
+// ---------- intake ----------
+el("startBtn").addEventListener("click", function(){ startIntake(el("intakeText").value); });
+document.querySelectorAll(".chip[data-example]").forEach(function(btn){
+  btn.addEventListener("click", function(){
+    var text = EXAMPLES[btn.dataset.example];
+    el("intakeText").value = text;
+    startIntake(text);
+  });
+});
+el("intakeFallbackBtn").addEventListener("click", function(){ seedManualDraft(); goToDraft(); });
+
+function startIntake(text){
+  text = (text || "").trim();
+  if (!text){
+    setStatus("intakeStatus", "Tell me at least roughly what you're deciding.", "error");
+    return;
+  }
+  state.rawIntake = text;
+  show("intakeFallback", false);
+  if (state.aiAvailable === false){
+    seedManualDraft();
+    goToDraft();
+    return;
+  }
+  proposeDraft(text, { forceFresh: false, statusId: "intakeStatus", buttonId: "startBtn" });
+}
+
+function seedManualDraft(){
+  state.title = "My decision";
+  state.options = [mkOption("Option A"), mkOption("Option B")];
+  state.criteria = [
+    mkCriterion("Cost", "Lower cost scores higher.", 6),
+    mkCriterion("Quality", "Better quality or fit scores higher.", 7),
+    mkCriterion("Convenience", "Easier or faster scores higher.", 5),
+    mkCriterion("Risk", "Lower risk scores higher.", 6)
+  ];
+  state.note = state.aiAvailable === false
+    ? "No AI assist available in this view — edit the options and criteria below to match your real decision."
+    : "";
+  state.usedAi = false;
+}
+
+function proposeDraft(text, opts){
+  var statusId = opts.statusId || "intakeStatus";
+  var buttonId = opts.buttonId || "startBtn";
+  el(buttonId).disabled = true;
+  setStatus(statusId, "Thinking through your decision…", "thinking");
+  show("intakeFallback", false);
+  var prompt = "You are helping someone set up a weighted decision matrix: a few options "
+    + "compared against the criteria that matter, each criterion weighted by importance.\n\n"
+    + "Here is what they told you about their decision:\n\"\"\"\n" + text + "\n\"\"\"\n\n"
+    + "1. Identify the options being compared from their text. If they listed clear options, use them.\n"
+    + "2. Propose 5 to 8 criteria that matter for this specific kind of decision, each with a one-sentence "
+    + "description that says concretely what a low score versus a high score means, and a suggested importance "
+    + "weight from 1 (barely matters) to 10 (critical) — lean on anything they emphasized, otherwise use "
+    + "sensible defaults for this kind of decision.\n"
+    + "3. If they already mentioned priorities themselves, reflect those rather than inventing unrelated ones.\n\n"
+    + "Reply with ONLY a JSON object, no other text, in exactly this shape:\n"
+    + "{\"title\": \"short decision title\", "
+    + "\"options\": [{\"label\": \"Display name\"}], "
+    + "\"criteria\": [{\"label\": \"Short name\", \"description\": \"one sentence anchoring low vs high\", \"weight\": 1}], "
+    + "\"note\": \"one sentence, only if their input was too vague to proceed confidently; otherwise an empty string\"}";
+
+  sample.json(prompt, { cache: opts.forceFresh ? false : true, effort: "medium" }).then(function(data){
+    applyDraft(data);
+    el(buttonId).disabled = false;
+    setStatus(statusId, "", null);
+    goToDraft();
+  }).catch(function(e){
+    el(buttonId).disabled = false;
+    setStatus(statusId, mapError(e), "error");
+    if (statusId === "intakeStatus") show("intakeFallback", true);
+  });
+}
+
+function applyDraft(data){
+  data = data && typeof data === "object" ? data : {};
+  var title = typeof data.title === "string" && data.title.trim() ? data.title.trim() : "My decision";
+  var rawOptions = Array.isArray(data.options) ? data.options.filter(function(o){ return o && typeof o.label === "string" && o.label.trim(); }) : [];
+  var rawCriteria = Array.isArray(data.criteria) ? data.criteria.filter(function(c){ return c && typeof c.label === "string" && c.label.trim(); }) : [];
+
+  var options = rawOptions.map(function(o){ return mkOption(o.label.trim()); });
+  while (options.length < 2) options.push(mkOption("Option " + (options.length + 1)));
+
+  var criteria = rawCriteria.map(function(c){ return mkCriterion(c.label.trim(), typeof c.description === "string" ? c.description.trim() : "", c.weight); });
+  while (criteria.length < 2) criteria.push(mkCriterion("Criterion " + (criteria.length + 1), "", 5));
+
+  state.title = title;
+  state.options = options;
+  state.criteria = criteria;
+  state.note = (rawOptions.length < 2 || rawCriteria.length < 2)
+    ? "I couldn't fully make out your options or priorities — I filled in placeholders, please edit them below."
+    : (typeof data.note === "string" ? data.note.trim() : "");
+  state.usedAi = true;
+}
+
+// ---------- draft screen ----------
+el("backToIntakeBtn").addEventListener("click", function(){ goToIntake(); });
+el("addOptionBtn").addEventListener("click", function(){
+  state.options.push(mkOption("Option " + (state.options.length + 1)));
+  renderDraftScreen();
+});
+el("addCriterionBtn").addEventListener("click", function(){
+  state.criteria.push(mkCriterion("New criterion", "", 5));
+  renderDraftScreen();
+});
+el("regenerateDraftBtn").addEventListener("click", function(){ proposeDraft(state.rawIntake, { forceFresh: true, statusId: "draftStatus", buttonId: "regenerateDraftBtn" }); });
+el("seeResultsBtn").addEventListener("click", function(){
+  state.title = el("titleInput").value.trim() || "My decision";
+  var okOptions = state.options.filter(function(o){ return o.label.trim(); }).length >= 2;
+  var okCriteria = state.criteria.filter(function(c){ return c.label.trim(); }).length >= 2;
+  if (!okOptions){ setStatus("draftStatus", "Add at least 2 options (with a name) to continue.", "error"); return; }
+  if (!okCriteria){ setStatus("draftStatus", "Add at least 2 criteria (with a name) to continue.", "error"); return; }
+  setStatus("draftStatus", "", null);
+  scoreOptions({ forceFresh: false, statusId: "draftStatus", buttonId: "seeResultsBtn" });
+});
+
+function renderDraftScreen(){
+  el("titleInput").value = state.title;
+  var aiNote = el("aiNote");
+  if (state.note){ aiNote.hidden = false; aiNote.textContent = state.note; } else { aiNote.hidden = true; }
+  el("regenerateDraftBtn").hidden = !(state.aiAvailable && state.rawIntake);
+
+  var optList = el("optionsList");
+  optList.innerHTML = "";
+  state.options.forEach(function(o, idx){
+    var row = document.createElement("div");
+    row.className = "rowItem";
+    var input = document.createElement("input");
+    input.type = "text"; input.value = o.label;
+    input.addEventListener("input", function(){ o.label = input.value; });
+    var rm = document.createElement("button");
+    rm.type = "button"; rm.className = "removeBtn"; rm.textContent = "×";
+    rm.setAttribute("aria-label", "Remove option");
+    rm.disabled = state.options.length <= 2;
+    rm.addEventListener("click", function(){
+      state.options = state.options.filter(function(x){ return x.id !== o.id; });
+      delete state.scores[o.id]; delete state.notes[o.id]; delete state.included[o.id];
+      renderDraftScreen();
+    });
+    row.appendChild(input); row.appendChild(rm);
+    optList.appendChild(row);
+  });
+
+  var critList = el("criteriaList");
+  critList.innerHTML = "";
+  state.criteria.forEach(function(c){
+    var row = document.createElement("div");
+    row.className = "critRow";
+
+    var top = document.createElement("div");
+    top.className = "critTop";
+    var body = document.createElement("div");
+    body.className = "rowBody";
+    var nameInput = document.createElement("input");
+    nameInput.type = "text"; nameInput.value = c.label; nameInput.placeholder = "What matters";
+    nameInput.addEventListener("input", function(){ c.label = nameInput.value; });
+    var descInput = document.createElement("input");
+    descInput.type = "text"; descInput.className = "critDesc"; descInput.value = c.description;
+    descInput.placeholder = "What a low vs. high score means (optional, but helps)";
+    descInput.addEventListener("input", function(){ c.description = descInput.value; });
+    body.appendChild(nameInput); body.appendChild(descInput);
+
+    var rm = document.createElement("button");
+    rm.type = "button"; rm.className = "removeBtn"; rm.textContent = "×";
+    rm.setAttribute("aria-label", "Remove criterion");
+    rm.disabled = state.criteria.length <= 2;
+    rm.addEventListener("click", function(){
+      state.criteria = state.criteria.filter(function(x){ return x.id !== c.id; });
+      Object.keys(state.scores).forEach(function(oid){ delete state.scores[oid][c.id]; });
+      Object.keys(state.notes).forEach(function(oid){ delete state.notes[oid][c.id]; });
+      renderDraftScreen();
+    });
+
+    top.appendChild(body); top.appendChild(rm);
+    row.appendChild(top);
+
+    var wrow = document.createElement("div");
+    wrow.className = "weightRow";
+    wrow.innerHTML = '<label>importance</label>';
+    var slider = document.createElement("input");
+    slider.type = "range"; slider.min = 1; slider.max = 10; slider.step = 1; slider.value = c.weight;
+    var badge = document.createElement("span");
+    badge.className = "weightBadge"; badge.textContent = c.weight;
+    slider.addEventListener("input", function(){ c.weight = parseInt(slider.value, 10); badge.textContent = c.weight; });
+    wrow.appendChild(slider); wrow.appendChild(badge);
+    row.appendChild(wrow);
+
+    critList.appendChild(row);
+  });
+}
+
+// ---------- scoring ----------
+function seedNeutralScores(){
+  state.scores = {}; state.notes = {}; state.included = {};
+  state.options.forEach(function(o){
+    state.scores[o.id] = {}; state.notes[o.id] = {}; state.included[o.id] = true;
+    state.criteria.forEach(function(c){ state.scores[o.id][c.id] = 5; state.notes[o.id][c.id] = ""; });
+  });
+  state.usedAi = false;
+  DEFAULT_SCORES = JSON.parse(JSON.stringify(state.scores));
+}
+
+function scoreOptions(opts){
+  var statusId = opts.statusId || "draftStatus";
+  var buttonId = opts.buttonId || "seeResultsBtn";
+  var fallbackId = statusId === "resultsStatus" ? "resultsFallback" : "draftFallback";
+  if (state.aiAvailable === false || !sample){
+    seedNeutralScores();
+    goToResults();
+    return;
+  }
+  el(buttonId).disabled = true;
+  show(fallbackId, false);
+  setStatus(statusId, "Scoring each option against each criterion…", "thinking");
+
+  var optLines = state.options.map(function(o){ return o.id + ": " + o.label; }).join("\n");
+  var critLines = state.criteria.map(function(c){
+    return c.id + ": " + c.label + (c.description ? " — " + c.description : "");
+  }).join("\n");
+
+  var prompt = "Score how well each option satisfies each criterion below, on a 1-10 scale, using your own "
+    + "general knowledge. You do not have live internet access here, so if something is time-sensitive or "
+    + "you're not confident, say so plainly in the rationale and give your best honest estimate rather than a "
+    + "falsely precise number.\n\n"
+    + "Options:\n" + optLines + "\n\n"
+    + "Criteria (id: name — what low vs high means):\n" + critLines + "\n\n"
+    + "For every option and every criterion, give a score from 1 to 10 and a one-sentence rationale.\n\n"
+    + "Reply with ONLY a JSON object, no other text, in exactly this shape, using the exact ids given above as keys:\n"
+    + "{\"scores\": {\"<option id>\": {\"<criterion id>\": 7}}, \"notes\": {\"<option id>\": {\"<criterion id>\": \"one-sentence rationale\"}}}";
+
+  sample.json(prompt, { cache: opts.forceFresh ? false : true, effort: "medium" }).then(function(data){
+    applyScores(data);
+    el(buttonId).disabled = false;
+    setStatus(statusId, "", null);
+    goToResults();
+  }).catch(function(e){
+    el(buttonId).disabled = false;
+    setStatus(statusId, mapError(e), "error");
+    show(fallbackId, true);
+  });
+}
+
+function applyScores(data){
+  data = data && typeof data === "object" ? data : {};
+  var scores = data.scores && typeof data.scores === "object" ? data.scores : {};
+  var notes = data.notes && typeof data.notes === "object" ? data.notes : {};
+  state.scores = {}; state.notes = {};
+  if (!state.included || Object.keys(state.included).length === 0) state.included = {};
+  state.options.forEach(function(o){
+    state.scores[o.id] = {}; state.notes[o.id] = {};
+    if (!(o.id in state.included)) state.included[o.id] = true;
+    state.criteria.forEach(function(c){
+      var v = scores[o.id] && scores[o.id][c.id];
+      v = Number(v);
+      state.scores[o.id][c.id] = (isFinite(v) && v >= 1 && v <= 10) ? Math.round(v) : 5;
+      var n = notes[o.id] && notes[o.id][c.id];
+      state.notes[o.id][c.id] = typeof n === "string" ? n.trim() : "";
+    });
+  });
+  state.usedAi = true;
+  DEFAULT_SCORES = JSON.parse(JSON.stringify(state.scores));
+}
+
+// ---------- results screen ----------
+el("editDraftBtn").addEventListener("click", function(){ goToDraft(); });
+el("regenerateScoresBtn").addEventListener("click", function(){ scoreOptions({ forceFresh: true, statusId: "resultsStatus", buttonId: "regenerateScoresBtn" }); });
+el("draftFallbackBtn").addEventListener("click", function(){
+  show("draftFallback", false); setStatus("draftStatus", "", null);
+  seedNeutralScores(); goToResults();
+});
+el("resultsFallbackBtn").addEventListener("click", function(){
+  show("resultsFallback", false); setStatus("resultsStatus", "", null);
+});
+el("tableToggle").addEventListener("click", function(){
+  var t = el("dataTable");
+  t.hidden = !t.hidden;
+  el("tableToggle").textContent = t.hidden ? "Show as data table" : "Hide data table";
+});
+
+var confirmArmed = false, confirmTimer = null;
+el("startOverBtn").addEventListener("click", function(){
+  if (!confirmArmed){
+    confirmArmed = true;
+    el("startOverBtn").textContent = "Click again to confirm";
+    confirmTimer = setTimeout(function(){ confirmArmed = false; el("startOverBtn").textContent = "Start a new decision"; }, 4000);
+    return;
+  }
+  clearTimeout(confirmTimer);
+  confirmArmed = false;
+  el("startOverBtn").textContent = "Start a new decision";
+  resetAll();
+});
+
+function resetAll(){
+  state.rawIntake = ""; state.title = "My decision"; state.note = ""; state.usedAi = false;
+  state.options = []; state.criteria = []; state.scores = {}; state.notes = {}; state.included = {};
+  DEFAULT_SCORES = null;
+  el("intakeText").value = "";
+  persist();
+  goToIntake();
+}
+
+function clamp10(v){ v = Math.round(v); return Math.max(1, Math.min(10, v)); }
+function scoreColor(v){
+  var hue = 130 * ((v - 1) / 9);
+  var dark = document.documentElement.getAttribute("data-theme") === "dark"
+    || (document.documentElement.getAttribute("data-theme") !== "light" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  return "hsl(" + hue.toFixed(0) + " 58% " + (dark ? 46 : 38) + "%)";
+}
+function weightedAvg(optId){
+  var num = 0, den = 0;
+  state.criteria.forEach(function(c){
+    var w = c.weight;
+    var row = state.scores[optId] || {};
+    num += w * (row[c.id] || 0);
+    den += w;
+  });
+  return den ? num / den : 0;
+}
+function topBottom(optId){
+  var contribs = state.criteria.map(function(c){
+    var row = state.scores[optId] || {};
+    return { label: c.label, val: c.weight * (row[c.id] || 0) };
+  });
+  contribs.sort(function(a,b){ return b.val - a.val; });
+  return { up: contribs[0], down: contribs[contribs.length - 1] };
+}
+function activeOptions(){
+  var list = state.options.filter(function(o){ return state.included[o.id]; });
+  return list.length ? list : state.options;
+}
+
+function renderResultsScreen(){
+  el("resultsTitle").textContent = state.title;
+  show("aiDisclaimer", !!state.usedAi);
+  show("manualDisclaimer", !state.usedAi);
+  el("regenerateScoresBtn").hidden = !(state.aiAvailable && state.usedAi);
+
+  var editList = el("criteriaEditList");
+  editList.innerHTML = "";
+  state.criteria.forEach(function(c){
+    var row = document.createElement("div");
+    row.className = "critRow";
+    var top = document.createElement("div");
+    top.style.display = "flex"; top.style.justifyContent = "space-between"; top.style.alignItems = "center"; top.style.gap = "10px";
+    var name = document.createElement("div");
+    name.style.fontWeight = "700"; name.style.fontSize = "14px"; name.textContent = c.label;
+    var wrow = document.createElement("div");
+    wrow.className = "weightRow"; wrow.style.margin = "0";
+    wrow.innerHTML = '<label>importance</label>';
+    var slider = document.createElement("input");
+    slider.type = "range"; slider.min = 1; slider.max = 10; slider.step = 1; slider.value = c.weight;
+    var badge = document.createElement("span");
+    badge.className = "weightBadge"; badge.textContent = c.weight;
+    slider.addEventListener("input", function(){ c.weight = parseInt(slider.value, 10); badge.textContent = c.weight; renderResults(); });
+    wrow.appendChild(slider); wrow.appendChild(badge);
+    top.appendChild(name); top.appendChild(wrow);
+    row.appendChild(top);
+    if (c.description){
+      var d = document.createElement("p");
+      d.style.fontSize = "12px"; d.style.marginTop = "4px"; d.textContent = c.description;
+      row.appendChild(d);
+    }
+
+    var cells = document.createElement("div");
+    cells.className = "cells";
+    state.options.forEach(function(o){ cells.appendChild(buildScoreCell(c, o)); });
+    row.appendChild(cells);
+
+    editList.appendChild(row);
+  });
+
+  renderResults();
+}
+
+function buildScoreCell(c, o){
+  var cell = document.createElement("div");
+  cell.className = "cell";
+
+  var head = document.createElement("div");
+  head.className = "cell-head";
+  var span = document.createElement("span");
+  span.textContent = o.label;
+  head.appendChild(span);
+  cell.appendChild(head);
+
+  var stepper = document.createElement("div");
+  stepper.className = "stepper";
+  var minus = document.createElement("button");
+  minus.type = "button"; minus.textContent = "−"; minus.setAttribute("aria-label", "lower score");
+  var chip = document.createElement("span");
+  chip.className = "score-chip";
+  var plus = document.createElement("button");
+  plus.type = "button"; plus.textContent = "+"; plus.setAttribute("aria-label", "raise score");
+
+  function paint(){
+    var v = (state.scores[o.id] || {})[c.id] || 1;
+    chip.textContent = v;
+    chip.style.background = scoreColor(v);
+  }
+  paint();
+
+  minus.addEventListener("click", function(){
+    state.scores[o.id][c.id] = clamp10((state.scores[o.id][c.id] || 1) - 1);
+    paint(); renderResults();
+  });
+  plus.addEventListener("click", function(){
+    state.scores[o.id][c.id] = clamp10((state.scores[o.id][c.id] || 1) + 1);
+    paint(); renderResults();
+  });
+  stepper.appendChild(minus); stepper.appendChild(chip); stepper.appendChild(plus);
+  cell.appendChild(stepper);
+
+  var noteText = (state.notes[o.id] || {})[c.id];
+  var why = document.createElement("button");
+  why.type = "button"; why.className = "why-btn";
+  var note = document.createElement("p");
+  note.className = "why-note"; note.hidden = true;
+  if (noteText){
+    why.textContent = "why? ↓";
+    note.textContent = noteText;
+    why.addEventListener("click", function(){
+      note.hidden = !note.hidden;
+      why.textContent = note.hidden ? "why? ↓" : "close ↑";
+    });
+  } else {
+    why.disabled = true; why.textContent = "no note";
+  }
+  cell.appendChild(why); cell.appendChild(note);
+  return cell;
+}
+
+function buildResultsLegend(){
+  var legend = el("resultsLegend");
+  legend.innerHTML = "";
+  state.options.forEach(function(o){
+    var on = !!state.included[o.id];
+    var item = document.createElement("span");
+    item.className = "item" + (on ? "" : " off");
+    item.tabIndex = 0; item.setAttribute("role", "button"); item.setAttribute("aria-pressed", on ? "true" : "false");
+    var sw = document.createElement("span");
+    sw.className = "swatch"; sw.style.background = "var(--accent)";
+    var txt = document.createElement("span");
+    txt.textContent = o.label;
+    item.appendChild(sw); item.appendChild(txt);
+    function toggle(){
+      state.included[o.id] = !state.included[o.id];
+      buildResultsLegend();
+      renderResults();
+    }
+    item.addEventListener("click", toggle);
+    item.addEventListener("keydown", function(ev){ if (ev.key === "Enter" || ev.key === " "){ ev.preventDefault(); toggle(); } });
+    legend.appendChild(item);
+  });
+}
+
+function renderResults(){
+  buildResultsLegend();
+  var opts = activeOptions();
+  var ranked = opts.map(function(o){ return { o: o, avg: weightedAvg(o.id) }; }).sort(function(a,b){ return b.avg - a.avg; });
+
+  var chartBody = el("chartBody");
+  chartBody.innerHTML = "";
+  ranked.forEach(function(r){
+    var row = document.createElement("div");
+    row.className = "chart-row";
+    var label = document.createElement("div");
+    label.className = "label"; label.textContent = r.o.label;
+    var track = document.createElement("div");
+    track.className = "track";
+    var fill = document.createElement("div");
+    fill.className = "fill";
+    fill.style.width = Math.max(6, (r.avg / 10) * 100) + "%";
+    fill.style.background = "var(--accent)";
+    var span = document.createElement("span");
+    span.textContent = r.avg.toFixed(1);
+    fill.appendChild(span);
+    track.appendChild(fill);
+    row.appendChild(label); row.appendChild(track);
+    chartBody.appendChild(row);
+  });
+
+  var closeCall = el("closeCallNote");
+  if (ranked.length >= 2 && (ranked[0].avg - ranked[1].avg) <= 0.5){
+    closeCall.hidden = false;
+    closeCall.innerHTML = "<b>Close call:</b> " + ranked[0].o.label + " and " + ranked[1].o.label + " are within half a point ("
+      + ranked[0].avg.toFixed(1) + " vs " + ranked[1].avg.toFixed(1) + "). At this gap the numbers can't really tell them apart — "
+      + "worth deciding on gut feel, or checking whether something that matters to you is missing from the list above.";
+  } else {
+    closeCall.hidden = true;
+  }
+
+  var headRow = el("dataTableHeadRow");
+  headRow.innerHTML = "";
+  ["Criterion", "Weight"].forEach(function(t){ var th = document.createElement("th"); th.textContent = t; headRow.appendChild(th); });
+  opts.forEach(function(o){ var th = document.createElement("th"); th.textContent = o.label; headRow.appendChild(th); });
+
+  var body = el("dataTableBody");
+  body.innerHTML = "";
+  state.criteria.forEach(function(c){
+    var tr = document.createElement("tr");
+    var th = document.createElement("th"); th.textContent = c.label; tr.appendChild(th);
+    var wtd = document.createElement("td"); wtd.textContent = c.weight; tr.appendChild(wtd);
+    opts.forEach(function(o){
+      var td = document.createElement("td");
+      td.textContent = (state.scores[o.id] || {})[c.id] || "–";
+      tr.appendChild(td);
+    });
+    body.appendChild(tr);
+  });
+
+  var foot = el("dataTableFoot");
+  foot.innerHTML = "";
+  var footTh = document.createElement("th"); footTh.textContent = "Weighted total"; foot.appendChild(footTh);
+  foot.appendChild(document.createElement("td"));
+  opts.forEach(function(o){ var td = document.createElement("td"); td.textContent = weightedAvg(o.id).toFixed(2); foot.appendChild(td); });
+
+  persist();
+}
+
+// ---------- navigation ----------
+function setScreen(name){
+  ["screenIntake","screenDraft","screenResults"].forEach(function(id){
+    el(id).classList.remove("visible");
+  });
+  var map = { intake: "screenIntake", draft: "screenDraft", results: "screenResults" };
+  el(map[name]).classList.add("visible");
+  document.querySelectorAll(".progress .step").forEach(function(s){
+    var step = s.dataset.step;
+    var order = ["intake","draft","results"];
+    s.classList.toggle("done", order.indexOf(step) < order.indexOf(name));
+    s.classList.toggle("active", step === name);
+  });
+  document.querySelectorAll("[data-step-label]").forEach(function(s){
+    s.classList.toggle("active", s.dataset.stepLabel === name);
+  });
+}
+function goToIntake(){ state.phase = "intake"; persist(); setScreen("intake"); }
+function goToDraft(){ state.phase = "draft"; persist(); setScreen("draft"); renderDraftScreen(); }
+function goToResults(){ state.phase = "results"; persist(); setScreen("results"); renderResultsScreen(); }
+
+// ---------- init ----------
+(function init(){
+  var restored = loadPersisted();
+  if (restored && state.options.length >= 2 && state.criteria.length >= 2){
+    el("intakeText").value = state.rawIntake || "";
+    if (state.phase === "results" && Object.keys(state.scores).length){
+      setScreen("results"); renderResultsScreen(); return;
+    }
+    if (state.phase === "draft"){
+      setScreen("draft"); renderDraftScreen(); return;
+    }
+  }
+  setScreen("intake");
+})();
+})();
+</script>
+</body>
+</html>
