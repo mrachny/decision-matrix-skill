@@ -38,35 +38,65 @@ the wrong tool when:
 If it fits, say so briefly and move on — don't make the person justify using a decision
 matrix to you.
 
-## 2. Name the decision and collect options
+## 2. One-message intake — don't interview field by field
 
-Get one sentence naming the actual decision and, if relevant, the deadline or stakes.
-Then collect the options (2-8). If someone hands you a huge list, help them cut it to a
-shortlist first (e.g. "which 5 of these 20 apartments are even worth scoring?") rather
-than scoring all 20 — scoring quality drops once there are too many cells to research
-properly.
+Asking "what's the decision," then "what are the options," then "what matters to
+you," then the weight of each criterion one at a time, turns a 2-minute decision into
+a 15-message slog. Ask for the decision, the options, and a rough sense of priorities
+**together, in one message**, and give an example so the person knows how little
+effort a good answer takes:
 
-## 3. Collect and define the criteria (5-10)
+> "What are you deciding, what are the options, and what matters most to you — rough
+> is totally fine, I'll turn it into a clean comparison. E.g.: *'Choosing between 3 job
+> offers — Acme, Globex, and staying at my current job (Initech). I mostly care about
+> pay, how much I'd grow, and not having a brutal commute.'*"
 
-Ask what matters to the person, and propose a draft list tailored to this *specific*
-kind of decision (a job offer and an apartment don't share criteria) so they're editing
-your draft rather than brainstorming from zero. Push back gently if they list more than
-~10 — criteria beyond that tend to be restatements of each other and just dilute the
-weights. Two things matter more than people expect:
+If they give you a thin answer (just the options, no priorities), that's fine — move
+to step 3 and propose priorities for them instead of asking again.
 
-- **Give each criterion a one-sentence definition**, not just a label. "Growth" is
-  ambiguous; "growth = how much more I'd learn in this role in year one" is scorable.
-  Without this, scores drift inconsistently across options.
+## 3. Propose one editable draft — criteria, definitions, and weights together
+
+Don't collect criteria and then separately collect weights. Research what typically
+matters for *this kind* of decision (a job offer and an apartment don't share
+criteria) and hand back one complete draft — 5-10 criteria, each with a one-line
+definition and a suggested weight (1-10) — for the person to edit in a single pass,
+rather than building it from their blank-page brainstorm or asking about each one in
+turn. Push back gently (still inside this one draft, don't ask permission first) if
+their own list runs past ~10 — merge or drop the ones that restate each other.
+
+Let people answer in whatever's easiest — a number, or just "high/medium/low" (map
+roughly to 9/6/3) — and accept a reply as light as "looks good" or "drop commute,
+bump pay to a 10." Example of what to send:
+
+> "Here's a draft for comparing job offers — edit any row, add/remove one, or just say
+> 'looks good':
+>
+> | Criterion | What it means | Importance (1-10) |
+> |---|---|---|
+> | Pay | Total comp (salary + bonus + equity), year one | 9 |
+> | Growth | How much more you'd learn/grow in this role | 8 |
+> | Commute | Door-to-door time, typical day | 6 |
+> | Stability | How likely the role/company still exists in 2 years | 7 |
+> | Team & culture | How good the people and day-to-day feel seem | 7 |
+>
+> Anything to add — like health insurance, or remote flexibility?"
+
+Two things matter more than people expect once the draft is confirmed:
+
+- **Keep each criterion's definition**, don't let it collapse back to a bare label.
+  "Growth" is ambiguous; "growth = how much more I'd learn in this role in year one"
+  is scorable. Without it, your own scores will drift inconsistently across options.
 - **Watch for criteria that double-count the same underlying thing** (e.g. "salary" and
   "financial security" often collapse into one factor) — merging them keeps the
   weights honest.
 
-## 4. Weight each criterion (1-10)
+## 4. Lock it in and move on
 
-Ask directly: "On a 1-10 scale, how important is **[criterion]** to you, independent of
-how any option scores on it?" If someone is unsure, propose a weight based on what
-they've already told you and let them correct it — don't silently assume. Weights
-don't need to sum to anything in particular; the formula below normalizes for that.
+One edit round is normally enough — once the person confirms (or doesn't object),
+treat criteria, definitions, and weights as locked and get straight to the research in
+step 5. Don't re-ask them to re-confirm numbers you already showed them; if you need to
+change something later (e.g. a criterion turns out unscoreable), say what you're
+changing and why rather than re-opening the whole draft for approval.
 
 ## 5. Research and score every option × criterion cell (1-10)
 
