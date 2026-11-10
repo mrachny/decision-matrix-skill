@@ -6,10 +6,17 @@
 Make hard decisions with a weighted decision matrix instead of gut feel. Two ways to
 use it:
 
-- **No install**: a [standalone web app](#no-install-web-app) that walks you through
-  it in your browser.
-- **Claude Code skill**: install it so Claude builds the whole comparison for you,
-  research included.
+| | [Web app](#no-install-web-app) | [Claude Code skill](#claude-code-skill) |
+|---|---|---|
+| Setup | None — open a link | `git clone` into `.claude/skills/` |
+| Scoring | You fill it in, or an AI guess from memory | Claude actually **researches** each option (real search, cited sources) |
+| Interface | Fixed step-by-step wizard | Open conversation — ask follow-ups, redo a step, no fixed limits |
+| Best for | A quick calculator, no account needed | A decision where getting the facts right matters |
+
+Use the web app when you already know roughly how each option scores and just want
+the weighted math done for you. Use the skill when you want Claude to go find out —
+its AI can't browse the web from inside the web app, only from inside an actual Claude
+Code/Claude session.
 
 ## No-install web app
 
