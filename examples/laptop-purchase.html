@@ -1,0 +1,628 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Which laptop should I buy? — Decision Matrix</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --page:#f8f8f6;
+  --surface:#ffffff;
+  --surface-2:#f0efe9;
+  --ink:#191814;
+  --ink-2:#53514a;
+  --muted:#8a8780;
+  --border:rgba(10,10,10,0.10);
+  --grid:#e4e2da;
+  --accent:#5b57d1;
+  --good:#1a9c5c;
+  --bad:#c23a3a;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --page:#111110;
+    --surface:#1a1a18;
+    --surface-2:#232220;
+    --ink:#f1efe9;
+    --ink-2:#c4c1b8;
+    --muted:#8d8a81;
+    --border:rgba(255,255,255,0.12);
+    --grid:#2e2d29;
+    --accent:#938fe8;
+    --good:#3bc07c;
+    --bad:#e2605f;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --page:#111110; --surface:#1a1a18; --surface-2:#232220; --ink:#f1efe9; --ink-2:#c4c1b8;
+  --muted:#8d8a81; --border:rgba(255,255,255,0.12); --grid:#2e2d29; --accent:#938fe8;
+  --good:#3bc07c; --bad:#e2605f; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{background:var(--page)}
+body{
+  margin:0; color:var(--ink); font-family:'Inter',system-ui,Arial,sans-serif;
+  padding-left:max(16px, env(safe-area-inset-left,0px));
+  padding-right:max(16px, env(safe-area-inset-right,0px));
+}
+.wrap{max-width:900px;margin:0 auto}
+h1,h2{font-family:'Source Serif 4',Georgia,serif;font-weight:700;text-wrap:balance;margin:0}
+p{line-height:1.6;color:var(--ink-2);margin:0}
+.eyebrow{font-size:11.5px;letter-spacing:.07em;color:var(--muted);text-transform:uppercase;font-weight:600}
+
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:20;background:var(--surface)}
+.ribbon{
+  position:sticky;top:env(safe-area-inset-top,0px);z-index:15;background:var(--surface);
+  border-bottom:1px solid var(--border);
+  padding:10px max(16px, env(safe-area-inset-left,0px)) 10px max(16px, env(safe-area-inset-right,0px));
+  margin:0 calc(max(16px, env(safe-area-inset-left,0px)) * -1) 0 calc(max(16px, env(safe-area-inset-right,0px)) * -1);
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;box-shadow:0 1px 0 var(--border);
+}
+.ribbon-title{font-family:'Source Serif 4',serif;font-weight:700;font-size:14.5px;white-space:nowrap}
+.ribbon-bars{display:flex;align-items:center;gap:8px;flex:1;min-width:0;flex-wrap:wrap}
+.rbar{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-2);white-space:nowrap}
+.rbar .dot{width:9px;height:9px;border-radius:50%;flex:none}
+.rbar b{font-variant-numeric:tabular-nums;color:var(--ink);font-weight:700}
+.reset-btn{
+  border:1px solid var(--border);background:transparent;color:var(--ink-2);font-family:inherit;
+  font-size:12px;padding:6px 12px;border-radius:999px;cursor:pointer;white-space:nowrap;
+}
+.reset-btn:hover{border-color:var(--accent);color:var(--accent)}
+.reset-btn:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.hero{padding:26px 0 16px}
+.hero h1{font-size:clamp(24px,5.2vw,34px)}
+.hero .subtitle{margin-top:6px;font-size:14.5px;color:var(--ink-2);font-weight:500}
+.hero .desc{max-width:62ch;margin-top:10px;font-size:14px}
+
+.group{margin-top:30px}
+.group-head{display:flex;align-items:baseline;gap:10px;margin-bottom:12px;padding-bottom:7px;border-bottom:2px solid var(--border)}
+.group-head h2{font-size:17px}
+.group-head span{font-size:11.5px;color:var(--muted)}
+
+.crit{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:13px 15px 15px;margin-bottom:11px}
+.crit-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:6px}
+.crit-name{font-weight:700;font-size:14px;flex:1;min-width:180px}
+.crit-desc{font-size:12px;color:var(--muted);margin:2px 0 10px}
+.weight-ctl{display:flex;align-items:center;gap:8px;min-width:160px}
+.weight-ctl label{font-size:11px;color:var(--muted);white-space:nowrap}
+.weight-ctl input[type=range]{accent-color:var(--accent);width:100px}
+.weight-badge{font-variant-numeric:tabular-nums;font-weight:700;font-size:12px;min-width:20px;text-align:center;color:var(--accent)}
+
+.cells{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media (max-width:700px){.cells{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:440px){.cells{grid-template-columns:1fr}}
+
+.cell{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:10px 10px 8px;min-width:0}
+.cell-head{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.cell-head .dot{width:8px;height:8px;border-radius:50%;flex:none}
+.cell-head span{font-size:12.5px;font-weight:600;color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cell.muted{opacity:.45}
+.stepper{display:flex;align-items:center;gap:6px}
+.stepper button{
+  width:24px;height:24px;border-radius:7px;border:1px solid var(--border);background:var(--surface);
+  color:var(--ink);font-size:14px;line-height:1;cursor:pointer;flex:none
+}
+.stepper button:hover{border-color:var(--accent);color:var(--accent)}
+.score-chip{flex:1;text-align:center;font-weight:700;font-variant-numeric:tabular-nums;font-size:13px;border-radius:7px;padding:4px 0;color:#fff}
+.why-btn{margin-top:6px;width:100%;background:none;border:none;color:var(--muted);font-family:inherit;font-size:11px;cursor:pointer;text-decoration:underline;text-underline-offset:2px;padding:2px 0;text-align:center}
+.why-btn:hover{color:var(--accent)}
+.why-btn:disabled{opacity:.4;cursor:default;text-decoration:none}
+.why-note{margin-top:6px;font-size:11.5px;line-height:1.5;color:var(--ink-2)}
+.why-note[hidden]{display:none!important}
+
+.results{margin-top:34px}
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 18px 10px}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px}
+.legend .item{display:flex;align-items:center;gap:6px;cursor:pointer;background:var(--surface-2);border:1px solid var(--border);border-radius:999px;padding:5px 10px 5px 8px;user-select:none;font-size:12px;color:var(--ink-2)}
+.legend .item:hover{border-color:var(--accent)}
+.legend .item.off{opacity:.45}
+.legend .swatch{width:10px;height:10px;border-radius:50%;flex:none}
+
+.chart-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.chart-row .label{width:120px;flex:none;font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chart-row .track{flex:1;background:var(--surface-2);border-radius:999px;height:22px;position:relative;overflow:hidden}
+.chart-row .fill{height:100%;border-radius:999px;display:flex;align-items:center;justify-content:flex-end;padding:0 10px;min-width:34px}
+.chart-row .fill span{font-size:12px;font-weight:700;color:#fff;font-variant-numeric:tabular-nums}
+.chart-axis{display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted);padding:0 0 4px;margin-top:2px;font-variant-numeric:tabular-nums}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin-left:130px;margin-top:-4px;margin-bottom:12px}
+@media (max-width:560px){.chart-row .label{width:86px;font-size:11.5px}.tags{margin-left:96px}}
+.tag{font-size:10.5px;border-radius:999px;padding:3px 8px;border:1px solid var(--border)}
+.tag.up{color:var(--good);border-color:color-mix(in srgb,var(--good) 40%,var(--border))}
+.tag.down{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 40%,var(--border))}
+
+.table-toggle{margin-top:14px;font-size:12.5px;color:var(--accent);background:none;border:none;font-family:inherit;cursor:pointer;text-decoration:underline;padding:0}
+.datatable{margin-top:12px;overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:480px;font-size:12.5px}
+table[hidden]{display:none!important}
+th,td{border-bottom:1px solid var(--grid);padding:6px 8px;text-align:center;font-variant-numeric:tabular-nums}
+thead th{color:var(--muted);font-weight:600;font-size:11px}
+tbody th{text-align:left;color:var(--ink-2);font-weight:500}
+tfoot td,tfoot th{font-weight:700;border-top:2px solid var(--border);border-bottom:none}
+
+.scale-legend{display:flex;align-items:center;gap:8px;margin-top:16px;font-size:11px;color:var(--muted)}
+.scale-legend .bar{flex:1;height:6px;border-radius:999px;background:linear-gradient(90deg,hsl(0 60% 42%),hsl(45 60% 42%),hsl(140 60% 38%))}
+
+.note{margin-top:14px;border-radius:12px;padding:12px 14px;font-size:12.5px;line-height:1.6;background:color-mix(in srgb, var(--accent) 9%, var(--surface));border:1px solid color-mix(in srgb, var(--accent) 28%, var(--border));color:var(--ink-2)}
+
+footer{margin:38px 0 30px;padding-top:16px;border-top:1px solid var(--border)}
+footer h3{font-size:13.5px;margin-bottom:7px;font-family:'Source Serif 4',serif}
+footer p{font-size:12px;margin:0 0 9px}
+footer .credit{font-size:11.5px;color:var(--muted)}
+footer .credit a{color:var(--accent);text-decoration:none}
+footer .credit a:hover{text-decoration:underline}
+</style>
+</head>
+<body dir="ltr">
+<div class="wrap">
+
+  <div class="ribbon">
+    <div class="ribbon-title" id="ribbonTitle">Decision</div>
+    <div class="ribbon-bars" id="ribbonBars"></div>
+    <button class="reset-btn" id="resetBtn" type="button">Reset to original</button>
+  </div>
+
+  <section class="hero">
+    <p class="eyebrow">Weighted decision matrix</p>
+    <h1 id="heroTitle"></h1>
+    <p class="subtitle" id="heroSubtitle"></p>
+    <p class="desc" id="heroDesc"></p>
+  </section>
+
+  <div id="groups"></div>
+
+  <section class="results">
+    <div class="group-head"><h2>Result</h2><span>Updates live as you adjust weights and options above</span></div>
+    <div class="chart-card">
+      <p style="font-size:12.5px;margin:0 0 10px">Click an option below to include or exclude it from the ranking and chart.</p>
+      <div class="legend" id="resultsLegend"></div>
+      <div id="chartBody"></div>
+      <div class="chart-axis"><span>1</span><span>3</span><span>5</span><span>7</span><span>10</span></div>
+      <div class="scale-legend"><span>low fit</span><div class="bar"></div><span>high fit</span></div>
+      <button class="table-toggle" id="tableToggle" type="button">Show as data table</button>
+      <div class="datatable">
+        <table id="dataTable" hidden>
+          <thead><tr id="dataTableHeadRow"></tr></thead>
+          <tbody id="dataTableBody"></tbody>
+          <tfoot><tr id="dataTableFoot"></tr></tfoot>
+        </table>
+      </div>
+    </div>
+    <div class="note" id="closeCallNote" hidden></div>
+  </section>
+
+  <footer>
+    <h3>How the score is calculated</h3>
+    <p>For each option: weighted score = sum(weight × score) across every criterion, divided
+    by the sum of the weights. That keeps the total on the same 1-10 scale as the inputs, so a
+    criterion weighted 9 pulls roughly twice as hard on the result as one weighted 4-5.</p>
+    <p class="credit" id="creditLine" hidden></p>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var DATA = /*__DECISION_DATA__*/{"meta": {"title": "Which laptop should I buy?", "subtitle": "Comparing three options under $1,600 for a mix of coding and travel", "description": "Four criteria matter most: price, how well it handles a dev workload, battery life away from a desk, and how easy repairs/upgrades are down the line.", "credit": "Example report — decision-matrix skill", "credit_url": "https://github.com/"}, "criteria": [{"id": "price", "label": "Price", "description": "10 = cheapest of the three, 1 = most expensive.", "weight": 8}, {"id": "performance", "label": "Dev workload performance", "description": "10 = fastest for compiling/running containers/multiple VMs, based on published multi-core benchmark scores.", "weight": 9}, {"id": "battery", "label": "Battery life away from a charger", "description": "10 = longest manufacturer-rated battery life among the three.", "weight": 6}, {"id": "repairability", "label": "Repairability / upgradeability", "description": "10 = RAM and storage are user-replaceable with widely available parts; 1 = fully soldered, no official repair program.", "weight": 4}, {"id": "screen", "label": "Screen quality", "description": "10 = best measured color accuracy and brightness among the three in independent reviews.", "weight": 5}], "options": [{"id": "frameworkDiy", "label": "Framework Laptop 13 (DIY)", "included": true}, {"id": "macbookAir", "label": "MacBook Air 15\" M3", "included": true}, {"id": "thinkpadT14", "label": "Lenovo ThinkPad T14 Gen 5", "included": true}], "scores": {"frameworkDiy": {"price": 6, "performance": 6, "battery": 5, "repairability": 10, "screen": 6}, "macbookAir": {"price": 4, "performance": 9, "battery": 10, "repairability": 2, "screen": 9}, "thinkpadT14": {"price": 7, "performance": 7, "battery": 6, "repairability": 8, "screen": 5}}, "notes": {"frameworkDiy": {"price": "DIY edition starts around $1,000 fully specced closer to $1,350 — mid-pack, not the cheapest once RAM/SSD are added.", "performance": "13th-gen Core i5/i7 options land mid-pack on multi-core benchmarks versus the other two — solid but not class-leading.", "battery": "Manufacturer-rated ~8-10h mixed use; shortest of the three, partly the tradeoff for modularity.", "repairability": "Modular mainboard, user-replaceable RAM/SSD/battery/ports, official repair guides and spare parts store — best in class by design intent.", "screen": "2.8K 120Hz panel is good but independent reviews rate color accuracy and peak brightness below the MacBook Air."}, "macbookAir": {"price": "15-inch M3 starts at $1,299, cheapest entry point of the three for a comparably specced machine.", "performance": "M3's multi-core benchmark scores lead both Windows options comfortably at this price and this is a fanless chassis, so it's also silent under load.", "battery": "Apple rates up to 18h video playback; independent real-world tests still show it comfortably ahead of the other two.", "repairability": "Soldered RAM and storage, no official self-repair parts for this model — weakest of the three on this criterion.", "screen": "Liquid Retina display rated highest of the three for color accuracy and brightness in independent reviews."}, "thinkpadT14": {"price": "List price runs higher, but business discounts/sales commonly bring it to the cheapest effective price of the three — scored on typical street price, not list.", "performance": "Ryzen/Core mobile chips here benchmark above the Framework DIY config but below the M3 on multi-core workloads.", "battery": "Rated ~9-11h; middle of the pack, slightly ahead of the Framework DIY unit.", "repairability": "ThinkPads keep user-accessible RAM/SSD bays and Lenovo publishes official repair manuals — very good, just short of Framework's fully modular design.", "screen": "Business-panel options are functional but reviews consistently rate color accuracy and brightness lowest of the three."}}}/*__END_DECISION_DATA__*/;
+
+  var CRITERIA = DATA.criteria || [];
+  var OPTIONS = DATA.options || [];
+  var SCORES = DATA.scores || {};
+  var NOTES = DATA.notes || {};
+  var META = DATA.meta || {};
+
+  var PALETTE_LIGHT = ["#2a66d6","#d6621f","#1a9c5c","#b8860a","#c2397f","#1f8f9e","#5b57d1","#c23a3a","#6b7a2a","#a15fe0","#1c7a7a","#b5591c"];
+  var PALETTE_DARK   = ["#5b8fe8","#e0813f","#3bc07c","#d4a637","#dd6ba0","#3fb3c4","#938fe8","#e2605f","#9db34a","#c08ae8","#4fb3b3","#d4813f"];
+  var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+  var rootTheme = document.documentElement.getAttribute("data-theme");
+  var isDark = rootTheme === "dark" || (rootTheme !== "light" && prefersDark);
+  var PALETTE = isDark ? PALETTE_DARK : PALETTE_LIGHT;
+
+  OPTIONS.forEach(function(o, i){ o._color = o.color || PALETTE[i % PALETTE.length]; });
+
+  if (META.direction === "rtl") document.body.setAttribute("dir", "rtl");
+  document.getElementById("ribbonTitle").textContent = META.title || "Decision";
+  document.getElementById("heroTitle").textContent = META.title || "Decision matrix";
+  var subtitleEl = document.getElementById("heroSubtitle");
+  if (META.subtitle){ subtitleEl.textContent = META.subtitle; } else { subtitleEl.remove(); }
+  var descEl = document.getElementById("heroDesc");
+  if (META.description){ descEl.textContent = META.description; } else { descEl.remove(); }
+  if (META.credit){
+    var creditEl = document.getElementById("creditLine");
+    creditEl.hidden = false;
+    if (META.credit_url){
+      var a = document.createElement("a");
+      a.href = META.credit_url; a.target = "_blank"; a.rel = "noopener";
+      a.textContent = META.credit;
+      creditEl.appendChild(document.createTextNode("Generated with the decision-matrix skill — "));
+      creditEl.appendChild(a);
+    } else {
+      creditEl.textContent = META.credit;
+    }
+  }
+  document.title = META.title ? (META.title + " — Decision Matrix") : "Decision Matrix Report";
+
+  var DEFAULT_WEIGHTS = {};
+  CRITERIA.forEach(function(c){ DEFAULT_WEIGHTS[c.id] = c.weight; });
+  var DEFAULT_SCORES = JSON.parse(JSON.stringify(SCORES));
+  var DEFAULT_INCLUDED = {};
+  OPTIONS.forEach(function(o){ DEFAULT_INCLUDED[o.id] = o.included !== false; });
+
+  var state = {
+    weights: JSON.parse(JSON.stringify(DEFAULT_WEIGHTS)),
+    scores: JSON.parse(JSON.stringify(DEFAULT_SCORES)),
+    included: JSON.parse(JSON.stringify(DEFAULT_INCLUDED))
+  };
+
+  function slug(s){ return (s || "").toString().toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 40); }
+  var STORE_KEY = "decision-matrix:" + (META.id || slug(META.title) || "report");
+
+  function loadState(){
+    try{
+      var raw = localStorage.getItem(STORE_KEY);
+      if(!raw) return;
+      var saved = JSON.parse(raw);
+      if(!saved || !saved.weights || !saved.scores) return;
+      CRITERIA.forEach(function(c){
+        if(typeof saved.weights[c.id] === "number") state.weights[c.id] = saved.weights[c.id];
+      });
+      OPTIONS.forEach(function(o){
+        if(!saved.scores[o.id]) return;
+        CRITERIA.forEach(function(c){
+          if(typeof saved.scores[o.id][c.id] === "number") state.scores[o.id][c.id] = saved.scores[o.id][c.id];
+        });
+      });
+      if(saved.included){
+        OPTIONS.forEach(function(o){
+          if(typeof saved.included[o.id] === "boolean") state.included[o.id] = saved.included[o.id];
+        });
+      }
+    }catch(e){}
+  }
+  function saveState(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){} }
+  loadState();
+
+  function clamp(v){ v = Math.round(v); return Math.max(1, Math.min(10, v)); }
+
+  function scoreColor(v){
+    var hue = 130 * ((v - 1) / 9);
+    return "hsl(" + hue.toFixed(0) + " 58% " + (isDark ? 46 : 38) + "%)";
+  }
+
+  function weightedAvg(optId){
+    var num = 0, den = 0;
+    CRITERIA.forEach(function(c){
+      var w = state.weights[c.id];
+      var row = state.scores[optId] || {};
+      num += w * (row[c.id] || 0);
+      den += w;
+    });
+    return den ? num / den : 0;
+  }
+
+  function topBottom(optId){
+    var contribs = CRITERIA.map(function(c){
+      var row = state.scores[optId] || {};
+      return { id:c.id, label:c.label, val: state.weights[c.id] * (row[c.id] || 0), score: row[c.id] || 0 };
+    });
+    contribs.sort(function(a,b){ return b.val - a.val; });
+    return { up: contribs[0], down: contribs[contribs.length-1] };
+  }
+
+  var groupsEl = document.getElementById("groups");
+
+  function hasGroups(){ return CRITERIA.some(function(c){ return c.group; }); }
+
+  function renderCriteria(){
+    groupsEl.innerHTML = "";
+    if (hasGroups()){
+      var seen = [];
+      CRITERIA.forEach(function(c){ if (c.group && seen.indexOf(c.group) === -1) seen.push(c.group); });
+      seen.forEach(function(g){
+        var section = document.createElement("section");
+        section.className = "group";
+        var head = document.createElement("div");
+        head.className = "group-head";
+        head.innerHTML = "<h2>" + g + "</h2>";
+        section.appendChild(head);
+        CRITERIA.filter(function(c){ return c.group === g; }).forEach(function(c){ section.appendChild(buildCritRow(c)); });
+        groupsEl.appendChild(section);
+      });
+    } else {
+      CRITERIA.forEach(function(c){ groupsEl.appendChild(buildCritRow(c)); });
+    }
+  }
+
+  function buildCritRow(c){
+    var row = document.createElement("div");
+    row.className = "crit";
+
+    var head = document.createElement("div");
+    head.className = "crit-head";
+
+    var nameWrap = document.createElement("div");
+    nameWrap.style.flex = "1"; nameWrap.style.minWidth = "180px";
+    var name = document.createElement("div");
+    name.className = "crit-name";
+    name.textContent = c.label;
+    nameWrap.appendChild(name);
+    if (c.description){
+      var desc = document.createElement("div");
+      desc.className = "crit-desc";
+      desc.textContent = c.description;
+      nameWrap.appendChild(desc);
+    }
+    head.appendChild(nameWrap);
+
+    var wctl = document.createElement("div");
+    wctl.className = "weight-ctl";
+    var wid = "w_" + c.id;
+    wctl.innerHTML = '<label for="'+wid+'">importance</label>';
+    var slider = document.createElement("input");
+    slider.type = "range"; slider.min = 1; slider.max = 10; slider.step = 1; slider.id = wid;
+    slider.value = state.weights[c.id];
+    var badge = document.createElement("span");
+    badge.className = "weight-badge";
+    badge.textContent = state.weights[c.id];
+    slider.addEventListener("input", function(){
+      state.weights[c.id] = parseInt(slider.value, 10);
+      badge.textContent = slider.value;
+      saveState(); renderResults();
+    });
+    wctl.appendChild(slider);
+    wctl.appendChild(badge);
+    head.appendChild(wctl);
+    row.appendChild(head);
+
+    var cells = document.createElement("div");
+    cells.className = "cells";
+    OPTIONS.forEach(function(o){ cells.appendChild(buildCell(c, o)); });
+    row.appendChild(cells);
+
+    return row;
+  }
+
+  function buildCell(c, o){
+    var cell = document.createElement("div");
+    cell.className = "cell" + (state.included[o.id] ? "" : " muted");
+    cell.dataset.opt = o.id;
+
+    var ch = document.createElement("div");
+    ch.className = "cell-head";
+    var dot = document.createElement("span");
+    dot.className = "dot";
+    dot.style.background = o._color;
+    var label = document.createElement("span");
+    label.textContent = o.label;
+    ch.appendChild(dot); ch.appendChild(label);
+    cell.appendChild(ch);
+
+    var stepper = document.createElement("div");
+    stepper.className = "stepper";
+
+    var minus = document.createElement("button");
+    minus.type = "button"; minus.textContent = "−"; minus.setAttribute("aria-label", "lower score");
+
+    var chip = document.createElement("span");
+    chip.className = "score-chip";
+
+    var plus = document.createElement("button");
+    plus.type = "button"; plus.textContent = "+"; plus.setAttribute("aria-label", "raise score");
+
+    function paint(){
+      var v = (state.scores[o.id] || {})[c.id] || 1;
+      chip.textContent = v;
+      chip.style.background = scoreColor(v);
+    }
+    paint();
+
+    minus.addEventListener("click", function(){
+      state.scores[o.id][c.id] = clamp((state.scores[o.id][c.id] || 1) - 1);
+      paint(); saveState(); renderResults();
+    });
+    plus.addEventListener("click", function(){
+      state.scores[o.id][c.id] = clamp((state.scores[o.id][c.id] || 1) + 1);
+      paint(); saveState(); renderResults();
+    });
+
+    stepper.appendChild(minus); stepper.appendChild(chip); stepper.appendChild(plus);
+    cell.appendChild(stepper);
+
+    var noteText = (NOTES[o.id] || {})[c.id];
+    var why = document.createElement("button");
+    why.type = "button"; why.className = "why-btn"; why.textContent = "why? ↓";
+    var note = document.createElement("p");
+    note.className = "why-note"; note.hidden = true;
+    if (noteText){
+      note.textContent = noteText;
+      why.addEventListener("click", function(){
+        note.hidden = !note.hidden;
+        why.textContent = note.hidden ? "why? ↓" : "close ↑";
+      });
+    } else {
+      why.disabled = true;
+      why.textContent = "no note";
+    }
+    cell.appendChild(why);
+    cell.appendChild(note);
+
+    return cell;
+  }
+
+  var ribbonBars = document.getElementById("ribbonBars");
+  var chartBody = document.getElementById("chartBody");
+  var dataTableBody = document.getElementById("dataTableBody");
+  var dataTableFoot = document.getElementById("dataTableFoot");
+
+  function buildResultsLegend(){
+    var el = document.getElementById("resultsLegend");
+    el.innerHTML = "";
+    OPTIONS.forEach(function(o){
+      var on = !!state.included[o.id];
+      var item = document.createElement("span");
+      item.className = "item" + (on ? "" : " off");
+      item.tabIndex = 0;
+      item.setAttribute("role", "button");
+      item.setAttribute("aria-pressed", on ? "true" : "false");
+      var sw = document.createElement("span");
+      sw.className = "swatch";
+      sw.style.background = o._color;
+      var txt = document.createElement("span");
+      txt.textContent = o.label;
+      item.appendChild(sw); item.appendChild(txt);
+      function toggle(){
+        state.included[o.id] = !state.included[o.id];
+        saveState();
+        buildResultsLegend();
+        refreshCellMuting();
+        renderResults();
+      }
+      item.addEventListener("click", toggle);
+      item.addEventListener("keydown", function(ev){ if(ev.key === "Enter" || ev.key === " "){ ev.preventDefault(); toggle(); } });
+      el.appendChild(item);
+    });
+  }
+
+  function refreshCellMuting(){
+    OPTIONS.forEach(function(o){
+      document.querySelectorAll('.cell[data-opt="'+o.id+'"]').forEach(function(cell){
+        cell.classList.toggle("muted", !state.included[o.id]);
+      });
+    });
+  }
+
+  function activeOptions(){
+    var list = OPTIONS.filter(function(o){ return state.included[o.id]; });
+    return list.length ? list : OPTIONS;
+  }
+
+  function shortLabel(full){ return full.length > 28 ? full.slice(0, 26) + "…" : full; }
+
+  function renderResults(){
+    var opts = activeOptions();
+    var results = opts.map(function(o){ return { o:o, avg: weightedAvg(o.id) }; });
+    var ranked = results.slice().sort(function(a,b){ return b.avg - a.avg; });
+
+    ribbonBars.innerHTML = "";
+    ranked.forEach(function(r){
+      var el = document.createElement("div");
+      el.className = "rbar";
+      el.innerHTML = '<span class="dot" style="background:'+r.o._color+'"></span>' + r.o.label + ' <b>' + r.avg.toFixed(1) + '</b>';
+      ribbonBars.appendChild(el);
+    });
+
+    chartBody.innerHTML = "";
+    var max = 10;
+    ranked.forEach(function(r){
+      var row = document.createElement("div");
+      row.className = "chart-row";
+      var label = document.createElement("div");
+      label.className = "label"; label.textContent = r.o.label;
+      var track = document.createElement("div");
+      track.className = "track";
+      var fill = document.createElement("div");
+      fill.className = "fill";
+      var pct = Math.max(6, (r.avg / max) * 100);
+      fill.style.width = pct + "%";
+      fill.style.background = r.o._color;
+      var span = document.createElement("span");
+      span.textContent = r.avg.toFixed(1);
+      fill.appendChild(span);
+      track.appendChild(fill);
+      row.appendChild(label); row.appendChild(track);
+      chartBody.appendChild(row);
+
+      if (CRITERIA.length > 1){
+        var tb = topBottom(r.o.id);
+        var tags = document.createElement("div");
+        tags.className = "tags";
+        tags.innerHTML =
+          '<span class="tag up">↑ ' + shortLabel(tb.up.label) + '</span>' +
+          '<span class="tag down">↓ ' + shortLabel(tb.down.label) + '</span>';
+        chartBody.appendChild(tags);
+      }
+    });
+
+    var closeCall = document.getElementById("closeCallNote");
+    if (ranked.length >= 2 && (ranked[0].avg - ranked[1].avg) <= 0.5){
+      closeCall.hidden = false;
+      closeCall.innerHTML = "<b>Close call:</b> " + ranked[0].o.label + " and " + ranked[1].o.label +
+        " are within half a point of each other (" + ranked[0].avg.toFixed(1) + " vs " + ranked[1].avg.toFixed(1) +
+        "). At this gap the model can't really tell them apart — worth deciding on gut feel, or checking whether a criterion that matters to you is missing from the list.";
+    } else {
+      closeCall.hidden = true;
+    }
+
+    var headRow = document.getElementById("dataTableHeadRow");
+    headRow.innerHTML = "";
+    ["Criterion", "Weight"].forEach(function(t){
+      var th = document.createElement("th");
+      th.textContent = t;
+      headRow.appendChild(th);
+    });
+    opts.forEach(function(o){
+      var th = document.createElement("th");
+      th.textContent = o.label;
+      headRow.appendChild(th);
+    });
+
+    dataTableBody.innerHTML = "";
+    CRITERIA.forEach(function(c){
+      var tr = document.createElement("tr");
+      var th = document.createElement("th");
+      th.textContent = c.label;
+      tr.appendChild(th);
+      var wtd = document.createElement("td");
+      wtd.textContent = state.weights[c.id];
+      tr.appendChild(wtd);
+      opts.forEach(function(o){
+        var td = document.createElement("td");
+        td.textContent = (state.scores[o.id] || {})[c.id] || "–";
+        tr.appendChild(td);
+      });
+      dataTableBody.appendChild(tr);
+    });
+    dataTableFoot.innerHTML = "";
+    var footTh = document.createElement("th");
+    footTh.textContent = "Weighted total";
+    dataTableFoot.appendChild(footTh);
+    var footBlank = document.createElement("td");
+    dataTableFoot.appendChild(footBlank);
+    opts.forEach(function(o){
+      var td = document.createElement("td");
+      td.textContent = weightedAvg(o.id).toFixed(2);
+      dataTableFoot.appendChild(td);
+    });
+  }
+
+  document.getElementById("tableToggle").addEventListener("click", function(){
+    var t = document.getElementById("dataTable");
+    t.hidden = !t.hidden;
+    this.textContent = t.hidden ? "Show as data table" : "Hide data table";
+  });
+
+  document.getElementById("resetBtn").addEventListener("click", function(){
+    state = {
+      weights: JSON.parse(JSON.stringify(DEFAULT_WEIGHTS)),
+      scores: JSON.parse(JSON.stringify(DEFAULT_SCORES)),
+      included: JSON.parse(JSON.stringify(DEFAULT_INCLUDED))
+    };
+    try{ localStorage.removeItem(STORE_KEY); }catch(e){}
+    renderCriteria();
+    buildResultsLegend();
+    renderResults();
+  });
+
+  renderCriteria();
+  buildResultsLegend();
+  renderResults();
+})();
+</script>
+</body>
+</html>
