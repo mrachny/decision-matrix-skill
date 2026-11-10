@@ -2,9 +2,7 @@
   "meta": {
     "title": "Which laptop should I buy?",
     "subtitle": "Comparing three options under $1,600 for a mix of coding and travel",
-    "description": "Four criteria matter most: price, how well it handles a dev workload, battery life away from a desk, and how easy repairs/upgrades are down the line.",
-    "credit": "Example report — decision-matrix skill",
-    "credit_url": "https://github.com/"
+    "description": "Four criteria matter most: price, how well it handles a dev workload, battery life away from a desk, and how easy repairs/upgrades are down the line."
   },
   "criteria": [
     {

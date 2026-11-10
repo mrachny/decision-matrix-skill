@@ -233,18 +233,21 @@ footer .credit a:hover{text-decoration:underline}
   if (META.subtitle){ subtitleEl.textContent = META.subtitle; } else { subtitleEl.remove(); }
   var descEl = document.getElementById("heroDesc");
   if (META.description){ descEl.textContent = META.description; } else { descEl.remove(); }
-  if (META.credit){
+  // Attribution: shown by default so reports built with this skill credit the
+  // project when shared. Edit SKILL_URL below to your own fork's URL before
+  // publishing, or set meta.credit to false in the data file to opt a report out.
+  var SKILL_NAME = "decision-matrix";
+  var SKILL_URL = "https://github.com/<your-username>/decision-matrix-skill";
+  if (META.credit !== false){
     var creditEl = document.getElementById("creditLine");
     creditEl.hidden = false;
-    if (META.credit_url){
-      var a = document.createElement("a");
-      a.href = META.credit_url; a.target = "_blank"; a.rel = "noopener";
-      a.textContent = META.credit;
-      creditEl.appendChild(document.createTextNode("Generated with the decision-matrix skill — "));
-      creditEl.appendChild(a);
-    } else {
-      creditEl.textContent = META.credit;
-    }
+    var creditText = (typeof META.credit === "string" && META.credit) ? META.credit : ("Built with " + SKILL_NAME);
+    var creditUrl = META.credit_url || SKILL_URL;
+    var a = document.createElement("a");
+    a.href = creditUrl; a.target = "_blank"; a.rel = "noopener";
+    a.textContent = creditText;
+    creditEl.appendChild(document.createTextNode("Generated with a decision matrix — "));
+    creditEl.appendChild(a);
   }
   document.title = META.title ? (META.title + " — Decision Matrix") : "Decision Matrix Report";
 

@@ -55,7 +55,7 @@ your draft rather than brainstorming from zero. Push back gently if they list mo
 weights. Two things matter more than people expect:
 
 - **Give each criterion a one-sentence definition**, not just a label. "Growth" is
-  ambiguous; "growth = how much more I'd learn in this role in year one" is scoreable.
+  ambiguous; "growth = how much more I'd learn in this role in year one" is scorable.
   Without this, scores drift inconsistently across options.
 - **Watch for criteria that double-count the same underlying thing** (e.g. "salary" and
   "financial security" often collapse into one factor) — merging them keeps the
@@ -140,8 +140,9 @@ a specific message if something's missing or out of range.
 ```
 
 - `meta.direction` is `"ltr"` or `"rtl"`; omit for `"ltr"`.
-- `meta.credit` / `credit_url` are optional — a small attribution line in the report
-  footer. Leave them out if the person doesn't want one.
+- The report footer shows a small "Generated with a decision matrix" attribution line
+  by default. `meta.credit` / `credit_url` override its text/link; set `meta.credit`
+  to `false` if the person explicitly doesn't want any attribution line.
 - `criteria[].description` and `notes` are optional but strongly recommended — they
   become the "why" text shown in the report. A criterion or cell with no description
   just shows no rationale, which is fine for a quick draft but weakens the report.
